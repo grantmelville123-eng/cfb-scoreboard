@@ -1,0 +1,8 @@
+{
+  "name": "cfb-scoreboard",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Live FBS college football scoreboard — scores, betting lines, national leaders, rankings and news.",
+  "//": "type:module is required by Vercel for ESM handlers in /api when the project has no framework. There are no dependencies and no build step; Vercel serves index.html and rankings.html as static files and turns each file under api/ into a function."
+}
