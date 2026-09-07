@@ -3,38 +3,40 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Saturday Ball — College Football Scoreboard</title>
+<title>CFB Scoreboard — Live College Football Scores</title>
 <meta name="description" content="Live FBS college football scores, betting lines, national leaders and news. Power 4 by default, every FBS game one click away." />
-<meta name="theme-color" content="#080a0d" />
+<meta name="theme-color" content="#f4f0e7" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://a.espncdn.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
-   Design tokens
-   The page chrome is deliberately neutral and dark so that the
-   only saturated colour on screen belongs to the schools.
+   Design tokens — warm cream paper.
+   The chrome stays low-chroma so the only saturated colour on
+   screen belongs to the schools.
    ============================================================ */
 :root{
-  --bg:#080a0d;
-  --bg-grad:#0c1016;
-  --panel:#11151c;
-  --panel2:#161b24;
-  --panel3:#1c2230;
-  --line:#212836;
-  --line2:#2e3646;
-  --text:#e9eef6;
-  --text2:#aeb9c9;
-  --mute:#78849a;
+  color-scheme:light;
+  --bg:#f4f0e7;        /* page — slightly deeper cream so cards lift off it */
+  --bg-grad:#efe9dc;
+  --panel:#fffdf8;     /* cards                                             */
+  --panel2:#faf6ed;    /* inset surfaces: buttons, chips, game cards        */
+  --panel3:#ece5d6;    /* pressed / skeleton peak                           */
+  --line:#e4ddcd;
+  --line2:#cdc3ad;
+  --text:#1d1a15;
+  --text2:#544e44;
+  --mute:#8b8375;
 
-  --gold:#f0b429;      /* primary UI accent — goalposts, active states */
-  --turf:#39d98a;      /* wins / final                                */
-  --live:#ff4d4d;      /* in-progress                                 */
-  --violet:#8b7cf6;    /* rankings                                    */
+  --gold:#e2a017;      /* accent fills — always paired with dark text       */
+  --gold-ink:#8a5c07;  /* accent as text/border on cream                    */
+  --turf:#12764a;      /* wins / final                                      */
+  --live:#cf2c1f;      /* in-progress                                       */
+  --violet:#5a4bc4;    /* rankings / conference tags                        */
 
   --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:22px;
-  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+  --shadow:0 1px 2px rgba(74,62,38,.06), 0 10px 24px -16px rgba(74,62,38,.30);
   --head-h:60px;
 }
 
@@ -45,14 +47,14 @@ body{
   font:15px/1.5 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
   -webkit-font-smoothing:antialiased;
   background-image:
-    radial-gradient(1100px 460px at 50% -180px, rgba(240,180,41,.10), transparent 70%),
-    radial-gradient(760px 380px at 100% 0, rgba(57,217,138,.055), transparent 70%);
+    radial-gradient(1100px 460px at 50% -180px, rgba(226,160,23,.16), transparent 70%),
+    radial-gradient(760px 380px at 100% 0, rgba(18,118,74,.07), transparent 70%);
   background-attachment:fixed;
 }
 a{color:inherit; text-decoration:none}
 img{max-width:100%}
 button{font:inherit; color:inherit}
-:focus-visible{outline:2px solid var(--gold); outline-offset:2px; border-radius:6px}
+:focus-visible{outline:2px solid var(--gold-ink); outline-offset:2px; border-radius:6px}
 
 .wrap{max-width:1320px; margin:0 auto; padding:0 16px}
 
@@ -61,7 +63,7 @@ button{font:inherit; color:inherit}
    ============================================================ */
 header{
   position:sticky; top:0; z-index:40;
-  background:rgba(8,10,13,.86);
+  background:rgba(244,240,231,.85);
   backdrop-filter:saturate(150%) blur(14px);
   -webkit-backdrop-filter:saturate(150%) blur(14px);
   border-bottom:1px solid var(--line);
@@ -76,7 +78,7 @@ header{
   font-family:'Barlow Condensed',Impact,sans-serif; font-weight:700;
   font-size:26px; letter-spacing:.5px; line-height:.94; text-transform:uppercase;
 }
-.brand .bt em{font-style:normal; color:var(--gold)}
+.brand .bt em{font-style:normal; color:var(--gold-ink)}
 .brand .bs{
   display:block; font-size:9px; font-weight:700; letter-spacing:2.4px;
   color:var(--mute); text-transform:uppercase; margin-top:2px;
@@ -87,13 +89,13 @@ nav a{
   padding:7px 12px; border-radius:999px; transition:.15s;
 }
 nav a:hover{color:var(--text); background:var(--panel2)}
-nav a.on{color:var(--bg); background:var(--gold)}
+nav a.on{color:#2a1c02; background:var(--gold)}
 .icon-btn{
-  background:var(--panel2); border:1px solid var(--line); color:var(--text2);
+  background:var(--panel); border:1px solid var(--line2); color:var(--text2);
   width:34px; height:34px; border-radius:999px; cursor:pointer;
   display:inline-flex; align-items:center; justify-content:center; transition:.15s;
 }
-.icon-btn:hover{border-color:var(--gold); color:var(--gold)}
+.icon-btn:hover{border-color:var(--gold-ink); color:var(--gold-ink)}
 .icon-btn.spin svg{animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
@@ -102,7 +104,7 @@ nav a.on{color:var(--bg); background:var(--gold)}
    ============================================================ */
 .controls{
   position:sticky; top:var(--head-h); z-index:30;
-  background:rgba(8,10,13,.92);
+  background:rgba(244,240,231,.92);
   backdrop-filter:saturate(150%) blur(14px);
   -webkit-backdrop-filter:saturate(150%) blur(14px);
   border-bottom:1px solid var(--line);
@@ -112,17 +114,17 @@ nav a.on{color:var(--bg); background:var(--gold)}
 
 .weeknav{display:flex; align-items:center; gap:6px}
 .wbtn{
-  background:var(--panel2); border:1px solid var(--line); border-radius:var(--r-sm);
+  background:var(--panel); border:1px solid var(--line2); border-radius:var(--r-sm);
   width:32px; height:32px; cursor:pointer; display:inline-flex; align-items:center;
   justify-content:center; color:var(--text2); transition:.15s; font-size:15px;
 }
-.wbtn:hover:not(:disabled){border-color:var(--gold); color:var(--gold)}
-.wbtn:disabled{opacity:.35; cursor:default}
+.wbtn:hover:not(:disabled){border-color:var(--gold-ink); color:var(--gold-ink)}
+.wbtn:disabled{opacity:.4; cursor:default}
 select.week-select{
-  background:var(--panel2); border:1px solid var(--line2); color:var(--text);
+  background:var(--panel); border:1px solid var(--line2); color:var(--text);
   border-radius:var(--r-sm); padding:6px 30px 6px 11px; font-weight:700; font-size:14px;
   cursor:pointer; appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2378849a' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238b8375' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat:no-repeat; background-position:right 10px center;
 }
 .week-range{font-size:12px; color:var(--mute); white-space:nowrap}
@@ -130,7 +132,7 @@ select.week-select{
   background:transparent; border:1px solid var(--line2); color:var(--text2);
   border-radius:999px; padding:5px 12px; font-size:12px; font-weight:600; cursor:pointer; transition:.15s;
 }
-.btn-today:hover{border-color:var(--gold); color:var(--gold)}
+.btn-today:hover{border-color:var(--gold-ink); color:var(--gold-ink)}
 
 /* Segmented scope switch */
 .seg{display:inline-flex; background:var(--panel2); border:1px solid var(--line); border-radius:999px; padding:3px}
@@ -139,33 +141,33 @@ select.week-select{
   padding:5px 14px; border-radius:999px; font-size:13px; font-weight:700; transition:.15s; white-space:nowrap;
 }
 .seg button:hover{color:var(--text)}
-.seg button.on{background:var(--gold); color:#1a1206}
+.seg button.on{background:var(--gold); color:#2a1c02; box-shadow:0 1px 2px rgba(74,62,38,.18)}
 
 /* Conference chips */
 .chips{display:flex; gap:6px; flex-wrap:wrap; align-items:center}
 .chip-btn{
-  background:var(--panel2); border:1px solid var(--line); color:var(--text2);
+  background:var(--panel); border:1px solid var(--line); color:var(--text2);
   border-radius:999px; padding:4px 11px; font-size:12px; font-weight:600;
   cursor:pointer; transition:.15s; white-space:nowrap;
 }
 .chip-btn:hover{border-color:var(--line2); color:var(--text)}
-.chip-btn.on{background:var(--text); border-color:var(--text); color:var(--bg)}
-.chip-btn .n{opacity:.5; margin-left:5px; font-weight:600; font-variant-numeric:tabular-nums}
+.chip-btn.on{background:var(--text); border-color:var(--text); color:#fffdf8}
+.chip-btn .n{opacity:.55; margin-left:5px; font-weight:600; font-variant-numeric:tabular-nums}
 
 .toggle{
   display:inline-flex; align-items:center; gap:7px; cursor:pointer; user-select:none;
-  background:var(--panel2); border:1px solid var(--line); border-radius:999px;
+  background:var(--panel); border:1px solid var(--line); border-radius:999px;
   padding:4px 11px 4px 8px; font-size:12px; font-weight:600; color:var(--text2); transition:.15s;
 }
 .toggle:hover{border-color:var(--line2); color:var(--text)}
-.toggle.on{border-color:rgba(255,77,77,.55); color:#ffb3b3; background:rgba(255,77,77,.10)}
+.toggle.on{border-color:rgba(207,44,31,.45); color:#9e2015; background:rgba(207,44,31,.08)}
 .toggle .dot{width:7px; height:7px; border-radius:50%; background:var(--mute)}
-.toggle.on .dot{background:var(--live); box-shadow:0 0 8px var(--live)}
+.toggle.on .dot{background:var(--live); box-shadow:0 0 8px rgba(207,44,31,.55)}
 
 .spacer{flex:1 1 auto}
 .slate{font-size:12px; color:var(--mute); display:flex; gap:12px; align-items:center; white-space:nowrap}
 .slate b{color:var(--text2); font-weight:700; font-variant-numeric:tabular-nums}
-.slate .lv{color:#ff9b9b}
+.slate .lv{color:#a8271b}
 
 /* ============================================================
    Layout
@@ -178,7 +180,7 @@ main{padding:20px 0 56px}
 @media (max-width:1080px){ .rail{position:static} }
 
 .card{
-  background:linear-gradient(180deg,var(--panel) 0,rgba(17,21,28,.72) 100%);
+  background:var(--panel);
   border:1px solid var(--line); border-radius:var(--r-lg); box-shadow:var(--shadow);
 }
 .card-h{
@@ -198,7 +200,7 @@ main{padding:20px 0 56px}
 .day{margin-bottom:26px}
 .day-h{
   display:flex; align-items:baseline; gap:10px; margin:0 2px 11px;
-  padding-bottom:8px; border-bottom:1px solid var(--line);
+  padding-bottom:8px; border-bottom:1px solid var(--line2);
 }
 .day-h h3{
   margin:0; font-family:'Barlow Condensed',sans-serif; font-weight:700;
@@ -210,9 +212,10 @@ main{padding:20px 0 56px}
 
 .game{
   position:relative; display:block; overflow:hidden;
-  background:linear-gradient(180deg,var(--panel2) 0,var(--panel) 100%);
+  background:var(--panel);
   border:1px solid var(--line); border-radius:var(--r-md);
   padding:11px 13px 11px 17px;
+  box-shadow:0 1px 2px rgba(74,62,38,.05);
   transition:transform .16s ease, border-color .16s ease, box-shadow .16s ease;
 }
 /* The team-colour rail: away colour on top, home colour beneath. */
@@ -222,33 +225,33 @@ main{padding:20px 0 56px}
 }
 .game:hover{
   transform:translateY(-2px); border-color:var(--line2);
-  box-shadow:0 1px 2px rgba(0,0,0,.5), 0 14px 30px -16px var(--c-home);
+  box-shadow:0 2px 4px rgba(74,62,38,.07), 0 16px 28px -18px var(--c-home);
 }
-.game.live{border-color:rgba(255,77,77,.42); background:linear-gradient(180deg,rgba(255,77,77,.055) 0,var(--panel) 62%)}
+.game.live{border-color:rgba(207,44,31,.40); background:linear-gradient(180deg,rgba(207,44,31,.055) 0,var(--panel) 62%)}
 
 .g-top{display:flex; align-items:center; gap:6px; margin-bottom:9px; min-height:18px}
 .tag{
   font-size:9.5px; font-weight:800; letter-spacing:.7px; text-transform:uppercase;
   padding:2.5px 6px; border-radius:4px; background:var(--panel3); color:var(--mute); white-space:nowrap;
 }
-.tag.conf{background:rgba(139,124,246,.14); color:#b8afff}
-.tag.neutral{background:rgba(240,180,41,.13); color:#f5cd7a}
+.tag.conf{background:rgba(90,75,196,.11); color:#4a3cae}
+.tag.neutral{background:rgba(226,160,23,.16); color:#8a5c07}
 .tag.tv{background:transparent; border:1px solid var(--line2); color:var(--text2)}
 .g-status{margin-left:auto; font-size:11.5px; font-weight:700; color:var(--mute); white-space:nowrap}
 .g-status.live{color:var(--live); display:inline-flex; align-items:center; gap:5px}
 .g-status.final{color:var(--turf)}
-.pulse{width:7px; height:7px; border-radius:50%; background:var(--live); box-shadow:0 0 7px var(--live); animation:pulse 1.5s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:1; transform:scale(1)}50%{opacity:.35; transform:scale(.82)}}
+.pulse{width:7px; height:7px; border-radius:50%; background:var(--live); box-shadow:0 0 7px rgba(207,44,31,.6); animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1; transform:scale(1)}50%{opacity:.3; transform:scale(.82)}}
 @media (prefers-reduced-motion:reduce){ .pulse{animation:none} .game:hover{transform:none} }
 
 .t-row{display:flex; align-items:center; gap:9px; padding:3.5px 0}
 .t-logo{
   width:26px; height:26px; flex-shrink:0; object-fit:contain;
-  filter:drop-shadow(0 1px 3px rgba(0,0,0,.55));
+  filter:drop-shadow(0 1px 2px rgba(74,62,38,.22));
 }
 .t-rank{
   font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:13px;
-  color:var(--gold); min-width:20px; text-align:right; flex-shrink:0; letter-spacing:-.2px;
+  color:var(--gold-ink); min-width:20px; text-align:right; flex-shrink:0; letter-spacing:-.2px;
 }
 .t-rank.blank{opacity:0}
 .t-main{min-width:0; flex:1}
@@ -262,29 +265,29 @@ main{padding:20px 0 56px}
   font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:25px;
   min-width:34px; text-align:right; font-variant-numeric:tabular-nums; line-height:1;
 }
-.t-poss{width:5px; height:5px; border-radius:50%; background:var(--gold); flex-shrink:0; margin-left:-4px}
+.t-poss{width:5px; height:5px; border-radius:50%; background:var(--gold-ink); flex-shrink:0; margin-left:-4px}
 .t-poss.off{background:transparent}
 .t-row.lose .t-name{color:var(--mute); font-weight:600}
 .t-row.lose .t-score{color:var(--mute)}
-.t-row.lose .t-logo{opacity:.45; filter:grayscale(.65)}
+.t-row.lose .t-logo{opacity:.4; filter:grayscale(.7)}
 .t-row.win .t-score{color:var(--turf)}
 .t-time{font-size:12px; color:var(--mute); font-weight:600; min-width:34px; text-align:right}
 
 .g-sit{
   margin-top:8px; padding:6px 9px; border-radius:var(--r-sm);
-  background:rgba(255,77,77,.09); border:1px solid rgba(255,77,77,.2);
-  font-size:11.5px; color:#ffc9c9; font-weight:600;
+  background:rgba(207,44,31,.07); border:1px solid rgba(207,44,31,.22);
+  font-size:11.5px; color:#8f1d13; font-weight:600;
   display:flex; gap:8px; align-items:center; flex-wrap:wrap;
 }
 .g-sit .rz{background:var(--live); color:#fff; font-size:9px; font-weight:800; padding:1.5px 5px; border-radius:3px; letter-spacing:.6px}
 
 .g-ex{
   display:flex; flex-wrap:wrap; gap:5px 6px; margin-top:9px;
-  padding-top:9px; border-top:1px dashed var(--line);
+  padding-top:9px; border-top:1px dashed var(--line2);
 }
 .pill{
   display:inline-flex; align-items:center; gap:5px;
-  background:rgba(255,255,255,.035); border:1px solid var(--line);
+  background:var(--panel2); border:1px solid var(--line);
   border-radius:999px; padding:3px 9px; font-size:11px; color:var(--text2); font-weight:600;
 }
 .pill b{color:var(--text); font-weight:700}
@@ -293,10 +296,10 @@ main{padding:20px 0 56px}
   border-radius:3px; background:var(--panel3); color:var(--mute);
 }
 .pill .lbl.live{background:var(--live); color:#fff}
-.pill.odds{border-color:rgba(57,217,138,.26)}
-.pill.pick{border-color:rgba(240,180,41,.3)}
-.pill.pick b{color:var(--gold)}
-.pill.wx{border-color:rgba(139,124,246,.25)}
+.pill.odds{border-color:rgba(18,118,74,.28)}
+.pill.pick{border-color:rgba(226,160,23,.4)}
+.pill.pick b{color:var(--gold-ink)}
+.pill.wx{border-color:rgba(90,75,196,.25)}
 
 /* ============================================================
    Right rail content
@@ -307,7 +310,7 @@ main{padding:20px 0 56px}
   border-radius:999px; padding:4px 11px; font-size:11.5px; font-weight:700; cursor:pointer; transition:.15s;
 }
 .tab:hover{color:var(--text)}
-.tab.on{background:var(--gold); border-color:var(--gold); color:#1a1206}
+.tab.on{background:var(--gold); border-color:var(--gold); color:#2a1c02}
 
 /* Capped feed height with a soft bottom fade, so a half-visible headline reads
    as "there's more" rather than as a rendering bug. */
@@ -323,7 +326,7 @@ main{padding:20px 0 56px}
 .news-i:last-child{border-bottom:0}
 .news-i img{width:56px; height:42px; border-radius:6px; object-fit:cover; flex-shrink:0; background:var(--panel3)}
 .news-i .tt{font-size:12.5px; font-weight:600; line-height:1.35; transition:.15s}
-.news-i:hover .tt{color:var(--gold)}
+.news-i:hover .tt{color:var(--gold-ink)}
 .news-i .mm{font-size:10.5px; color:var(--mute); margin-top:3px}
 
 .rk-row{display:flex; align-items:center; gap:9px; padding:5.5px 0; border-bottom:1px solid var(--line)}
@@ -332,7 +335,7 @@ main{padding:20px 0 56px}
   font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:15px;
   width:20px; text-align:right; color:var(--mute); flex-shrink:0;
 }
-.rk-row.top .rk-n{color:var(--gold)}
+.rk-row.top .rk-n{color:var(--gold-ink)}
 .rk-row img{width:20px; height:20px; object-fit:contain; flex-shrink:0}
 .rk-nm{font-size:12.5px; font-weight:600; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .rk-rec{font-size:11px; color:var(--mute); font-variant-numeric:tabular-nums}
@@ -356,23 +359,23 @@ main{padding:20px 0 56px}
 .empty{color:var(--mute); padding:26px 4px; text-align:center; font-size:13.5px}
 .empty b{display:block; color:var(--text2); font-size:15px; margin-bottom:5px; font-weight:700}
 .empty button{
-  margin-top:10px; background:var(--panel2); border:1px solid var(--line2);
+  margin-top:10px; background:var(--panel); border:1px solid var(--line2);
   color:var(--text); border-radius:999px; padding:6px 15px; font-size:12.5px; font-weight:600; cursor:pointer;
 }
-.empty button:hover{border-color:var(--gold); color:var(--gold)}
+.empty button:hover{border-color:var(--gold-ink); color:var(--gold-ink)}
 
 .sk{background:linear-gradient(90deg,var(--panel2) 25%,var(--panel3) 50%,var(--panel2) 75%);
     background-size:200% 100%; animation:sh 1.4s linear infinite; border-radius:6px}
 @keyframes sh{to{background-position:-200% 0}}
-.sk-card{height:132px; border-radius:var(--r-md)}
+.sk-card{height:132px; border-radius:var(--r-md); border:1px solid var(--line)}
 .sk-line{height:12px; margin:9px 0}
 
 footer{
-  border-top:1px solid var(--line); padding:20px 0 34px;
+  border-top:1px solid var(--line2); padding:20px 0 34px;
   font-size:11.5px; color:var(--mute); line-height:1.7;
 }
 footer a{color:var(--text2); text-decoration:underline; text-underline-offset:2px}
-footer a:hover{color:var(--gold)}
+footer a:hover{color:var(--gold-ink)}
 .upd{font-variant-numeric:tabular-nums}
 
 @media (max-width:600px){
@@ -384,10 +387,12 @@ footer a:hover{color:var(--gold)}
   .head-in{gap:8px; padding:0 12px}
   .brand{min-width:0}
   .brand svg{width:24px; height:27px}
-  .brand .bt{font-size:20px}
-  .brand .bs{font-size:8px; letter-spacing:1.6px}
+  .brand .bt{font-size:18px}
+  /* The tagline is decorative; the header row is the one thing that can't
+     wrap, so it goes first rather than forcing a horizontal scroll. */
+  .brand .bs{display:none}
   nav{gap:0}
-  nav a{font-size:12px; padding:6px 7px}
+  nav a{font-size:12px; padding:6px 6px}
   .icon-btn{width:30px; height:30px; margin-left:2px}
   .wrap{padding:0 12px}
   .controls-in{padding:10px 12px}
@@ -399,11 +404,11 @@ footer a:hover{color:var(--gold)}
 
 <header>
   <div class="head-in">
-    <a class="brand" href="index.html" aria-label="Saturday Ball home">
+    <a class="brand" href="index.html" aria-label="CFB Scoreboard home">
       <svg viewBox="0 0 30 34" aria-hidden="true">
         <defs>
           <linearGradient id="gp" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#ffd86b"/><stop offset="1" stop-color="#d4941a"/>
+            <stop offset="0" stop-color="#e8ab24"/><stop offset="1" stop-color="#98670c"/>
           </linearGradient>
           <linearGradient id="bl" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0" stop-color="#a8552e"/><stop offset="1" stop-color="#6b3018"/>
@@ -417,8 +422,8 @@ footer a:hover{color:var(--gold)}
         <path d="M13.2 21.3v2.1M15 20.8v2.1M16.8 20.3v2.1" stroke="#f4e9dd" stroke-width=".9" stroke-linecap="round"/>
       </svg>
       <div>
-        <span class="bt">Saturday <em>Ball</em></span>
-        <span class="bs">FBS Scoreboard</span>
+        <span class="bt">CFB <em>Scoreboard</em></span>
+        <span class="bs">College Football · FBS</span>
       </div>
     </a>
     <nav>
@@ -604,12 +609,14 @@ function fresh(o, ttl){ return o && typeof o.at === "number" && (Date.now() - o.
 /** Season label: CFB seasons are named for the year they start in. */
 function seasonYear(){ const d = new Date(); return d.getMonth() < 6 ? d.getFullYear() - 1 : d.getFullYear(); }
 
-/** ESPN team colours are raw brand hex with no contrast guarantee — a lot of
- *  schools are near-black navy, maroon or forest green, which disappear
- *  against a dark page. Lift lightness in HSL (rather than blending toward
- *  white, which washes the hue out) so Texas burnt orange still reads burnt
- *  orange and Georgia red still reads red. */
-function tone(hex, minL = 0.44, minS = 0.30){
+/** ESPN team colours are raw brand hex with no contrast guarantee. On a cream
+ *  page the problem is the bright end — Iowa gold, Tennessee orange and
+ *  Syracuse orange all vanish into the paper. Clamp lightness in HSL rather
+ *  than blending toward black, which would flatten every hue into mud: this
+ *  keeps Texas burnt orange reading as burnt orange while making sure it's
+ *  dark enough to see. Deep navies and maroons already work here, so the
+ *  floor only guards against a school whose brand colour is nearly black. */
+function tone(hex, minL = 0.16, maxL = 0.46, minS = 0.28){
   let h = String(hex || "").replace("#","").trim();
   if (h.length === 3) h = h.split("").map(c => c + c).join("");
   if (!/^[0-9a-f]{6}$/i.test(h)) return "#8a94a6";
@@ -621,9 +628,9 @@ function tone(hex, minL = 0.44, minS = 0.30){
     H = (H * 60 + 360) % 360;
   }
   // Pure black / white / grey school colours have no hue to preserve — those
-  // fall back to the neutral so the rail doesn't turn into a grey smear.
-  if (S < 0.08) return L > 0.75 ? "#dfe5ee" : "#8a94a6";
-  L = Math.min(Math.max(L, minL), 0.68);
+  // fall back to a warm neutral so the rail doesn't turn into a grey smear.
+  if (S < 0.08) return L > 0.72 ? "#9c958a" : "#403a31";
+  L = Math.min(Math.max(L, minL), maxL);
   S = Math.max(S, minS);
   const c = (1 - Math.abs(2*L - 1)) * S, x = c * (1 - Math.abs((H/60) % 2 - 1)), m = L - c/2;
   const [r2,g2,b2] =
