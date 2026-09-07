@@ -26,6 +26,11 @@
 
 const CACHE_SECONDS = 30 * 60;
 
+// How many leaders to pull per category before filtering. See the note in
+// getLeaders() — the default of 25 is nowhere near enough once FCS players are
+// removed. The whole payload is fetched once and shared by every stat tab.
+const RAW_LIMIT = 300;
+
 // Categories the UI exposes. The core API also has interceptions, receptions,
 // rushingTouchdowns, receivingTouchdowns, quarterbackRating, interceptionYards
 // and kickoffYards if you want more tabs.
@@ -150,8 +155,14 @@ async function getLeaders() {
   const combos = [[yr, 2], [yr - 1, 2], [yr - 1, 3]];
 
   for (const [year, type] of combos) {
+    // RAW_LIMIT matters more than it looks. The feed covers all of Division I
+    // and is ordered by raw total, so early in a season it is dominated by FCS
+    // teams that have simply played more games — of the default 25 passing-yards
+    // leaders, only FOUR were FBS, and only two of those were Power 4. Asking
+    // for 300 leaves 60-170 FBS players per category to filter from, which is
+    // enough for a top-10 in any single conference.
     const target = `https://sports.core.api.espn.com/v2/sports/football/leagues/college-football`
-                 + `/seasons/${year}/types/${type}/leaders?lang=en&region=us`;
+                 + `/seasons/${year}/types/${type}/leaders?lang=en&region=us&limit=${RAW_LIMIT}`;
     try {
       const res = await fetch(target, { headers: espnHeaders() });
       if (!res.ok) continue;

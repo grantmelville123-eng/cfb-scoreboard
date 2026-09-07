@@ -16,6 +16,10 @@
 // array reporting ok/count/error per feed, so /api/diag and a quick curl can
 // tell you which outlet went dark without reading any logs.
 //
+// Sports Illustrated's college-football feed was in this list and returned a
+// hard 404 from production, so it was removed. Add outlets here freely — a bad
+// URL costs its own slot and shows up as ok:false in the response.
+//
 // No XML dependency — these are well-formed, boring feeds and a regex reader
 // keeps the function dependency-free and instant to cold-start.
 
@@ -26,7 +30,6 @@ const FEEDS = [
   { name: "ESPN",         url: "https://www.espn.com/espn/rss/ncf/news" },
   { name: "CBS Sports",   url: "https://www.cbssports.com/rss/headlines/college-football/" },
   { name: "Yahoo Sports", url: "https://sports.yahoo.com/college-football/rss.xml" },
-  { name: "SI",           url: "https://www.si.com/rss/si_college_football.rss" },
   // Google News is the widest net — it surfaces The Athletic, 247Sports, On3
   // and local beat writers that have no usable feed of their own. Its item
   // titles carry a " - Outlet" suffix, which we split out as the source.
