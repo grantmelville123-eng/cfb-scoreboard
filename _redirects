@@ -1,0 +1,18 @@
+# Cloudflare Pages redirect rules.
+#
+# All real proxying happens in Pages Functions under functions/api/ — external
+# 200-rewrites in this file are unreliable on Cloudflare and can't set the
+# request headers ESPN and Reddit require. The routes are:
+#
+#   /api/espn-core/*  → sports.core.api.espn.com   (season leaders, $ref lookups)
+#   /api/espn-site/*  → site.api.espn.com          (scoreboard, news, rankings)
+#   /api/espn-web/*   → site.web.api.espn.com      (standings, byathlete)
+#   /api/cfb-odds     → The Odds API (key held server-side)
+#   /api/cfb-teams    → slimmed FBS directory + conference standings
+#   /api/reddit-fn    → r/CFB hot posts
+#   /api/diag         → deployment diagnostics
+#
+# The line below is only a soft fallback for desktop browsers where a direct
+# Reddit call happens to work.
+
+/api/reddit/*     https://www.reddit.com/:splat            200

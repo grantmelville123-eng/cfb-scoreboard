@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Rankings & Standings — Saturday Ball</title>
+<meta name="description" content="AP Top 25, Coaches Poll and CFP rankings plus full conference standings for every FBS league." />
+<meta name="theme-color" content="#080a0d" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://a.espncdn.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080a0d; --panel:#11151c; --panel2:#161b24; --panel3:#1c2230;
+  --line:#212836; --line2:#2e3646;
+  --text:#e9eef6; --text2:#aeb9c9; --mute:#78849a;
+  --gold:#f0b429; --turf:#39d98a; --live:#ff4d4d; --violet:#8b7cf6;
+  --r-sm:8px; --r-md:12px; --r-lg:16px;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+  --head-h:60px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font:15px/1.5 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(1100px 460px at 50% -180px, rgba(240,180,41,.10), transparent 70%);
+  background-attachment:fixed;
+}
+a{color:inherit; text-decoration:none}
+button{font:inherit; color:inherit}
+:focus-visible{outline:2px solid var(--gold); outline-offset:2px; border-radius:6px}
+.wrap{max-width:1320px; margin:0 auto; padding:0 16px}
+
+header{position:sticky; top:0; z-index:40; background:rgba(8,10,13,.86);
+  backdrop-filter:saturate(150%) blur(14px); -webkit-backdrop-filter:saturate(150%) blur(14px);
+  border-bottom:1px solid var(--line)}
+.head-in{height:var(--head-h); display:flex; align-items:center; gap:16px; max-width:1320px; margin:0 auto; padding:0 16px}
+.brand{display:flex; align-items:center; gap:11px}
+.brand svg{width:30px; height:34px}
+.brand .bt{font-family:'Barlow Condensed',Impact,sans-serif; font-weight:700; font-size:26px;
+  letter-spacing:.5px; line-height:.94; text-transform:uppercase}
+.brand .bt em{font-style:normal; color:var(--gold)}
+.brand .bs{display:block; font-size:9px; font-weight:700; letter-spacing:2.4px; color:var(--mute);
+  text-transform:uppercase; margin-top:2px}
+nav{display:flex; gap:2px; margin-left:auto}
+nav a{font-size:13px; font-weight:600; color:var(--mute); padding:7px 12px; border-radius:999px; transition:.15s}
+nav a:hover{color:var(--text); background:var(--panel2)}
+nav a.on{color:var(--bg); background:var(--gold)}
+
+main{padding:24px 0 56px}
+.page-h{margin:0 0 18px; font-family:'Barlow Condensed',sans-serif; font-weight:700;
+  font-size:34px; letter-spacing:.5px; text-transform:uppercase}
+.layout{display:grid; grid-template-columns:minmax(0,420px) minmax(0,1fr); gap:20px; align-items:start}
+@media (max-width:940px){ .layout{grid-template-columns:1fr} }
+
+.card{background:linear-gradient(180deg,var(--panel) 0,rgba(17,21,28,.72) 100%);
+  border:1px solid var(--line); border-radius:var(--r-lg); box-shadow:var(--shadow); overflow:hidden}
+.card-h{display:flex; align-items:center; gap:8px; padding:13px 16px 11px; border-bottom:1px solid var(--line)}
+.card-h h2{margin:0; font-size:11px; font-weight:800; letter-spacing:1.4px; text-transform:uppercase; color:var(--text2)}
+.card-h .hint{margin-left:auto; font-size:11px; color:var(--mute)}
+.card-b{padding:6px 16px 14px}
+.tabs{display:flex; gap:5px; padding:11px 16px 0; flex-wrap:wrap}
+.tab{background:var(--panel2); border:1px solid var(--line); color:var(--mute); border-radius:999px;
+  padding:4px 12px; font-size:11.5px; font-weight:700; cursor:pointer; transition:.15s}
+.tab:hover{color:var(--text)}
+.tab.on{background:var(--gold); border-color:var(--gold); color:#1a1206}
+
+.rk-row{display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid var(--line)}
+.rk-row:last-child{border-bottom:0}
+.rk-n{font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:17px; width:24px;
+  text-align:right; color:var(--mute); flex-shrink:0}
+.rk-row.top .rk-n{color:var(--gold)}
+.rk-row img{width:24px; height:24px; object-fit:contain; flex-shrink:0}
+.rk-nm{font-size:13.5px; font-weight:600; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.rk-nm i{font-style:normal; color:var(--gold); font-size:10px; font-weight:800; margin-left:5px}
+.rk-rec{font-size:11.5px; color:var(--mute); font-variant-numeric:tabular-nums; flex-shrink:0}
+.rk-pts{font-size:11px; color:var(--mute); font-variant-numeric:tabular-nums; width:46px; text-align:right; flex-shrink:0}
+.rk-tr{font-size:10.5px; font-weight:700; width:30px; text-align:right; flex-shrink:0}
+.rk-tr.up{color:var(--turf)} .rk-tr.dn{color:var(--live)} .rk-tr.flat{color:var(--mute)}
+
+table{width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums}
+thead th{font-size:10px; font-weight:800; letter-spacing:.9px; text-transform:uppercase; color:var(--mute);
+  text-align:right; padding:8px 6px; border-bottom:1px solid var(--line2)}
+thead th:first-child{text-align:left}
+tbody td{padding:7px 6px; border-bottom:1px solid var(--line); text-align:right; font-size:13px}
+tbody td:first-child{text-align:left}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:rgba(255,255,255,.022)}
+.tm{display:flex; align-items:center; gap:9px; min-width:0}
+.tm img{width:22px; height:22px; object-fit:contain; flex-shrink:0}
+.tm span{font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.tm .rkb{font-family:'Barlow Condensed',sans-serif; font-size:12px; color:var(--gold); font-weight:700; flex-shrink:0}
+.streak.w{color:var(--turf)} .streak.l{color:var(--live)}
+.conf-block{margin-bottom:16px}
+
+.empty{color:var(--mute); padding:26px 4px; text-align:center; font-size:13.5px}
+.sk{background:linear-gradient(90deg,var(--panel2) 25%,var(--panel3) 50%,var(--panel2) 75%);
+  background-size:200% 100%; animation:sh 1.4s linear infinite; border-radius:6px; height:12px; margin:10px 0}
+@keyframes sh{to{background-position:-200% 0}}
+footer{border-top:1px solid var(--line); padding:20px 0 34px; font-size:11.5px; color:var(--mute)}
+footer a{color:var(--text2); text-decoration:underline; text-underline-offset:2px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="head-in">
+    <a class="brand" href="index.html" aria-label="Saturday Ball home">
+      <svg viewBox="0 0 30 34" aria-hidden="true">
+        <defs>
+          <linearGradient id="gp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd86b"/><stop offset="1" stop-color="#d4941a"/></linearGradient>
+          <linearGradient id="bl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a8552e"/><stop offset="1" stop-color="#6b3018"/></linearGradient>
+        </defs>
+        <path d="M4 3v11M26 3v11M4 14h22M15 14v17" stroke="url(#gp)" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+        <ellipse cx="15" cy="22" rx="8.6" ry="5.4" fill="url(#bl)" stroke="#2a1208" stroke-width=".9" transform="rotate(-18 15 22)"/>
+        <path d="M10.6 23.4 L19.4 20.6" stroke="#f4e9dd" stroke-width="1.1" stroke-linecap="round"/>
+        <path d="M13.2 21.3v2.1M15 20.8v2.1M16.8 20.3v2.1" stroke="#f4e9dd" stroke-width=".9" stroke-linecap="round"/>
+      </svg>
+      <div><span class="bt">Saturday <em>Ball</em></span><span class="bs">FBS Scoreboard</span></div>
+    </a>
+    <nav>
+      <a href="index.html">Scoreboard</a>
+      <a href="rankings.html" class="on">Rankings</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <h1 class="page-h">Rankings &amp; Standings</h1>
+    <div class="layout">
+      <div class="card">
+        <div class="tabs" id="pollTabs"><button class="tab on">Loading…</button></div>
+        <div class="card-h" style="border-top:1px solid var(--line); margin-top:11px">
+          <h2 id="pollName">Poll</h2><span class="hint" id="pollWhen"></span>
+        </div>
+        <div class="card-b"><div id="poll"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><h2>Conference Standings</h2><span class="hint" id="stWhen"></span></div>
+        <div class="tabs" id="confTabs"></div>
+        <div class="card-b"><div id="standings"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div></div>
+      </div>
+    </div>
+
+    <footer>
+      Polls and standings from ESPN. Standings are served through
+      <code>/api/cfb-teams</code>, which slims ESPN's 2.5&nbsp;MB payload at the edge and caches it for six hours.
+      · <a href="index.html">Back to the scoreboard</a> · <a href="/api/diag" target="_blank" rel="noopener">Diagnostics</a>
+    </footer>
+  </div>
+</main>
+
+<script>
+const POLLS = "https://site.api.espn.com/apis/site/v2/sports/football/college-football/rankings";
+const $  = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const logoFor = id => `https://a.espncdn.com/i/teamlogos/ncaa/500/${id}.png`;
+
+/* Conference display order — Power 4 first, then everyone else. */
+const CONF_ORDER = ["1","5","4","8","151","17","37","15","12","9","18"];
+const CONF_SHORT = { "1":"ACC","5":"Big Ten","4":"Big 12","8":"SEC","151":"American",
+  "12":"C-USA","15":"MAC","17":"Mtn West","9":"Pac-12","37":"Sun Belt","18":"Independents" };
+
+let polls = [], pollIdx = 0;
+let confs = [], confIdx = 0;
+let rankByTeam = {};   // team id -> AP rank, used to badge standings rows
+
+/* ───────────────── Polls ───────────────── */
+async function loadPolls(){
+  try{
+    const res = await fetch(POLLS);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    polls = (data.rankings || []).filter(r => (r.ranks || []).length);
+    if (!polls.length) throw new Error("no polls");
+
+    // Prefer the AP poll on load; it's what most people mean by "the rankings".
+    const ap = polls.findIndex(p => p.type === "ap");
+    pollIdx = ap >= 0 ? ap : 0;
+
+    const apPoll = polls[ap >= 0 ? ap : 0];
+    rankByTeam = {};
+    for (const r of (apPoll.ranks || [])) rankByTeam[String(r.team && r.team.id)] = r.current;
+
+    $("pollTabs").innerHTML = polls.map((p,i) =>
+      `<button class="tab${i === pollIdx ? " on" : ""}" data-i="${i}">${esc(p.shortName || p.name)}</button>`).join("");
+    paintPoll();
+    if (confs.length) paintStandings();   // re-badge once ranks are known
+  }catch(err){
+    console.warn("[polls]", err);
+    $("pollTabs").innerHTML = "";
+    $("poll").innerHTML = `<div class="empty">Rankings unavailable right now.</div>`;
+  }
+}
+
+function paintPoll(){
+  const p = polls[pollIdx];
+  $("pollName").textContent = p.name || "Poll";
+  $("pollWhen").textContent = p.occurrence && p.occurrence.displayValue
+    ? p.occurrence.displayValue
+    : (p.season && p.season.year ? String(p.season.year) : "");
+  $("poll").innerHTML = (p.ranks || []).map(r => {
+    const t = r.team || {};
+    const move = (r.previous && r.previous > 0) ? r.previous - r.current : 0;
+    const trend = !r.previous || r.previous === 0 ? `<span class="rk-tr flat">NR</span>`
+      : move > 0 ? `<span class="rk-tr up">▲${move}</span>`
+      : move < 0 ? `<span class="rk-tr dn">▼${-move}</span>`
+      : `<span class="rk-tr flat">–</span>`;
+    const fpv = r.firstPlaceVotes ? `<i>${r.firstPlaceVotes} first</i>` : "";
+    return `<a class="rk-row${r.current <= 4 ? " top" : ""}"
+        href="https://www.espn.com/college-football/team/_/id/${esc(t.id)}" target="_blank" rel="noopener">
+      <span class="rk-n">${r.current}</span>
+      <img src="${esc(logoFor(t.id))}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">
+      <span class="rk-nm">${esc(t.location || t.nickname || t.name || "")}${fpv}</span>
+      <span class="rk-rec">${esc(r.recordSummary || "")}</span>
+      <span class="rk-pts">${r.points ? Math.round(r.points).toLocaleString() : ""}</span>
+      ${trend}
+    </a>`;
+  }).join("");
+}
+
+$("pollTabs").addEventListener("click", e => {
+  const b = e.target.closest("button[data-i]");
+  if (!b) return;
+  pollIdx = Number(b.dataset.i);
+  document.querySelectorAll("#pollTabs .tab").forEach(x => x.classList.toggle("on", x === b));
+  paintPoll();
+});
+
+/* ───────────────── Standings ───────────────── */
+async function loadStandings(){
+  try{
+    const res = await fetch("/api/cfb-teams");
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    confs = (data.conferences || []).sort((a,b) => {
+      const ai = CONF_ORDER.indexOf(a.id), bi = CONF_ORDER.indexOf(b.id);
+      return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
+    });
+    if (!confs.length) throw new Error("no conferences");
+    $("stWhen").textContent = data.season ? `${data.season} season` : "";
+    $("confTabs").innerHTML = confs.map((c,i) =>
+      `<button class="tab${i === 0 ? " on" : ""}" data-i="${i}">${esc(CONF_SHORT[c.id] || c.short || c.name)}</button>`).join("");
+    paintStandings();
+  }catch(err){
+    console.warn("[standings]", err);
+    $("standings").innerHTML =
+      `<div class="empty">Standings unavailable. This needs the <code>/api/cfb-teams</code> Function,
+       which only runs on a deployed Cloudflare Pages site.</div>`;
+  }
+}
+
+/** Sort by conference record first, then overall, then point differential. */
+function recVal(s){
+  const m = String(s || "").match(/(\d+)\s*-\s*(\d+)/);
+  if (!m) return -1;
+  const w = +m[1], l = +m[2];
+  return (w + l) ? w / (w + l) : 0;
+}
+function paintStandings(){
+  const c = confs[confIdx];
+  if (!c) return;
+  const rows = c.teams.slice().sort((a,b) =>
+    recVal(b.confRec) - recVal(a.confRec) || recVal(b.overall) - recVal(a.overall)
+    || (parseInt(b.diff, 10) || 0) - (parseInt(a.diff, 10) || 0));
+
+  $("standings").innerHTML = `<div class="conf-block"><table>
+    <thead><tr><th>Team</th><th>Conf</th><th>Overall</th><th>PF</th><th>PA</th><th>Diff</th><th>Strk</th></tr></thead>
+    <tbody>${rows.map(t => {
+      const rk = rankByTeam[t.id];
+      const strkCls = /^W/.test(t.streak) ? "w" : /^L/.test(t.streak) ? "l" : "";
+      return `<tr>
+        <td><a class="tm" href="https://www.espn.com/college-football/team/_/id/${esc(t.id)}" target="_blank" rel="noopener">
+          ${rk ? `<span class="rkb">#${rk}</span>` : ""}
+          <img src="${esc(logoFor(t.id))}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">
+          <span>${esc(t.name || t.full)}</span></a></td>
+        <td>${esc(t.confRec)}</td>
+        <td>${esc(t.overall)}</td>
+        <td>${t.pf != null ? t.pf : "–"}</td>
+        <td>${t.pa != null ? t.pa : "–"}</td>
+        <td>${esc(t.diff || "–")}</td>
+        <td class="streak ${strkCls}">${esc(t.streak || "–")}</td>
+      </tr>`;
+    }).join("")}</tbody></table></div>`;
+}
+
+$("confTabs").addEventListener("click", e => {
+  const b = e.target.closest("button[data-i]");
+  if (!b) return;
+  confIdx = Number(b.dataset.i);
+  document.querySelectorAll("#confTabs .tab").forEach(x => x.classList.toggle("on", x === b));
+  paintStandings();
+});
+
+loadPolls();
+loadStandings();
+</script>
+</body>
+</html>
