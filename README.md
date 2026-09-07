@@ -10,22 +10,32 @@ rankings.html     AP / Coaches / CFP polls + full conference standings
 package.json      type:module only — no dependencies, no build
 
 api/              Vercel Functions          (this is the deployed platform)
-  espn-core/[...path].js  → sports.core.api.espn.com   (season leaders, $ref lookups)
-  espn-site/[...path].js  → site.api.espn.com          (scoreboard, news, rankings)
-  espn-web/[...path].js   → site.web.api.espn.com      (standings, byathlete)
+  cfb-leaders.js          → national leaders, names + FBS filter resolved server-side
+  cfb-news.js             → headlines merged from five outlets' RSS
   cfb-odds.js             → The Odds API (NCAAF), key held server-side
   cfb-teams.js            → slimmed FBS directory + conference standings
-  reddit-fn.js            → r/CFB hot posts with an accepted User-Agent
+  reddit-fn.js            → r/CFB hot posts (best-effort — see below)
   diag.js                 → /api/diag deployment health dashboard
 
-functions/        Cloudflare Pages Functions — the same seven endpoints, kept
-_redirects        so the project can move back to Cloudflare without a rewrite.
+functions/        Cloudflare Pages Functions, left from the original build.
+_redirects        NOTE: these are now BEHIND — they still contain the ESPN
+                  catch-all proxies and have no cfb-leaders or cfb-news. Moving
+                  back to Cloudflare would mean porting those two first.
                   Vercel ignores both directories entirely.
 ```
 
-Both function directories expose the **same seven URLs**, so the frontend is
-platform-agnostic — it only ever calls `/api/...`. If you change one, change
-the other or delete the one you're not using.
+### Two Vercel gotchas worth knowing
+
+**Catch-all routes.** The original build proxied ESPN through
+`api/espn-core/[...path].js`. On Vercel that 404s: with no framework, the
+zero-config filesystem API matches only a **single** path segment for a
+catch-all, so `/api/espn-core/v2/sports/...` never routes. Rather than paper
+over it with rewrites, the one thing that needed it — leaders — became a
+purpose-built endpoint that does the whole job server-side.
+
+**Reddit.** Reddit returns 403 to Vercel's data-centre IPs no matter what
+User-Agent you send. `reddit-fn.js` still exists and the r/CFB tab still tries,
+but it fails honestly and says why. That is what `cfb-news.js` is for.
 
 ## Deploying to Vercel
 
@@ -72,10 +82,21 @@ within six hours, which makes weekdays free. The free tier is 500
 credits/month — see the notes at the top of `api/cfb-odds.js` if you run short.
 
 **Leaders.** ESPN's core leaders feed spans all of Division I and returns
-athlete names as `$ref` URLs. `/api/cfb-teams` gives us the FBS team-id set so
-an FCS quarterback doesn't top the national list, and names are dereferenced
-six at a time and cached in `localStorage` for a week. The other stat tabs are
-prefetched at idle so switching between them is instant.
+athlete names as `$ref` URLs, so a top-10 needs ten extra round trips plus the
+FBS team set to filter out FCS players. `/api/cfb-leaders` does all of that
+server-side and returns rows ready to paint — one browser request instead of
+eleven. It takes `?stat=` and `?conf=` (`p4`, `all`, or a conference id: 1 ACC,
+4 Big 12, 5 Big Ten, 8 SEC), and each combination is cached separately at the
+edge for 30 minutes. Notre Dame is counted as Power 4.
+
+**Headlines.** `/api/cfb-news` fetches five RSS feeds in parallel, each with
+its own timeout and try/catch, then merges, de-duplicates by headline and sorts
+by recency. Google News is in the mix because it surfaces The Athletic,
+247Sports, On3 and local beat writers that have no usable feed of their own;
+its `" - Outlet"` title suffix is split back out so cards credit the real
+publisher. The response carries a `sources` array reporting ok/count/error per
+feed — `curl -s .../api/cfb-news | jq .sources` tells you instantly which
+outlet went dark, and the browser console logs any that are down.
 
 **Standings** would be a 2.5 MB download straight from ESPN. `cfb-teams.js`
 strips it to the ~15 fields the UI uses (~60 KB) and caches for six hours.
@@ -93,6 +114,9 @@ and the user has interacted in the last 15 minutes.
   `interceptions`, `receptions`, `rushingTouchdowns`, `receivingTouchdowns`,
   `quarterbackRating`, `interceptionYards` and `kickoffYards`.
 - **Odds cost** — `CACHE_SECONDS` and `MARKETS` in `api/cfb-odds.js`.
+- **News outlets** — the `FEEDS` array in `api/cfb-news.js`.
+- **Leader conference filter** — `LEADER_CONFS` in `index.html` and
+  `P4_CONF` / `P4_EXTRA_TEAMS` in `api/cfb-leaders.js`.
 
 ## Local preview
 

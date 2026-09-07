@@ -191,7 +191,11 @@ async function loadPolls(){
     const res = await fetch(POLLS);
     if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
-    polls = (data.rankings || []).filter(r => (r.ranks || []).length);
+    // ESPN returns FCS and Division II coaches polls in the same payload.
+    // Keep the three that belong on an FBS site.
+    const FBS_POLLS = new Set(["ap", "usa", "cfp"]);
+    polls = (data.rankings || []).filter(r => (r.ranks || []).length && FBS_POLLS.has(r.type));
+    if (!polls.length) polls = (data.rankings || []).filter(r => (r.ranks || []).length);
     if (!polls.length) throw new Error("no polls");
 
     // Prefer the AP poll on load; it's what most people mean by "the rankings".
@@ -219,13 +223,17 @@ function paintPoll(){
   $("pollWhen").textContent = p.occurrence && p.occurrence.displayValue
     ? p.occurrence.displayValue
     : (p.season && p.season.year ? String(p.season.year) : "");
+  // "NR" means unranked in the PREVIOUS poll. A preseason poll has no previous,
+  // so every row would say NR — drop the column instead of showing noise.
+  const hasHistory = (p.ranks || []).some(r => r.previous && r.previous > 0);
   $("poll").innerHTML = (p.ranks || []).map(r => {
     const t = r.team || {};
     const move = (r.previous && r.previous > 0) ? r.previous - r.current : 0;
-    const trend = !r.previous || r.previous === 0 ? `<span class="rk-tr flat">NR</span>`
-      : move > 0 ? `<span class="rk-tr up">▲${move}</span>`
-      : move < 0 ? `<span class="rk-tr dn">▼${-move}</span>`
-      : `<span class="rk-tr flat">–</span>`;
+    const trend = !hasHistory ? ""
+      : !r.previous || r.previous === 0 ? `<span class="rk-tr flat" title="Unranked in the previous poll">NR</span>`
+      : move > 0 ? `<span class="rk-tr up" title="Up ${move}">▲${move}</span>`
+      : move < 0 ? `<span class="rk-tr dn" title="Down ${-move}">▼${-move}</span>`
+      : `<span class="rk-tr flat" title="Unchanged">–</span>`;
     const fpv = r.firstPlaceVotes ? `<i>${r.firstPlaceVotes} first</i>` : "";
     return `<a class="rk-row${r.current <= 4 ? " top" : ""}"
         href="https://www.espn.com/college-football/team/_/id/${esc(t.id)}" target="_blank" rel="noopener">
