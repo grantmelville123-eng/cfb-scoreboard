@@ -29,7 +29,7 @@ const CACHE_SECONDS = 30 * 60;
 // How many leaders to pull per category before filtering. See the note in
 // getLeaders() — the default of 25 is nowhere near enough once FCS players are
 // removed. The whole payload is fetched once and shared by every stat tab.
-const RAW_LIMIT = 300;
+const RAW_LIMIT = 1000;
 
 // Categories the UI exposes. The core API also has interceptions, receptions,
 // rushingTouchdowns, receivingTouchdowns, quarterbackRating, interceptionYards
@@ -41,8 +41,16 @@ const ALLOWED_STATS = new Set([
   "receivingTouchdowns", "quarterbackRating",
 ]);
 
-const P4_CONF = new Set(["1", "4", "5", "8"]);   // ACC, Big 12, Big Ten, SEC
-const P4_EXTRA_TEAMS = new Set(["87"]);           // Notre Dame
+// "Power" is a moving target. Through the 2023 season it meant five leagues;
+// the Pac-12 was raided in 2024 and the phrase became Power 4. Filtering an old
+// season by today's definition would drop USC, Oregon, Washington and everyone
+// else who was Pac-12 at the time, so the set depends on the season asked for.
+const POWER_BASE = new Set(["1", "4", "5", "8"]);   // ACC, Big 12, Big Ten, SEC
+const PAC12 = "9";
+const LAST_POWER5_SEASON = 2023;
+const P4_EXTRA_TEAMS = new Set(["87"]);            // Notre Dame
+const powerConfs = season =>
+  season <= LAST_POWER5_SEASON ? new Set([...POWER_BASE, PAC12]) : POWER_BASE;
 
 const TTL = { teams: 6 * 60 * 60 * 1000, leaders: 30 * 60 * 1000, names: 24 * 60 * 60 * 1000 };
 
@@ -81,7 +89,7 @@ export default async function handler(request, response) {
     for (const r of raw) {
       const t = r.teamId ? teams.get(r.teamId) : null;
       if (knowFbs && !t) continue;                       // FCS, or unknown team
-      if (!passesConf(r.teamId, t, conf)) continue;
+      if (!passesConf(r.teamId, t, conf, season)) continue;
       picked.push(r);
       if (picked.length >= limit) break;
     }
@@ -113,6 +121,7 @@ export default async function handler(request, response) {
       season: leaders.season,
       seasonType: leaders.type,
       fbsFiltered: knowFbs,
+      powerLabel: season <= LAST_POWER5_SEASON ? "Power 5" : "Power 4",
       rows,
     });
   } catch (err) {
@@ -121,10 +130,11 @@ export default async function handler(request, response) {
   }
 }
 
-function passesConf(teamId, team, conf) {
+function passesConf(teamId, team, conf, season) {
   if (conf === "all") return true;
   if (!team) return false;
-  if (conf === "p4") return P4_CONF.has(team.conf) || P4_EXTRA_TEAMS.has(teamId);
+  // "p4" is the aggregate-power filter; what it includes depends on the season.
+  if (conf === "p4") return powerConfs(season).has(team.conf) || P4_EXTRA_TEAMS.has(teamId);
   return team.conf === conf;
 }
 
@@ -177,8 +187,10 @@ async function getLeaders(season, current) {
     // and is ordered by raw total, so early in a season it is dominated by FCS
     // teams that have simply played more games — of the default 25 passing-yards
     // leaders, only FOUR were FBS, and only two of those were Power 4. Asking
-    // for 300 leaves 60-170 FBS players per category to filter from, which is
-    // enough for a top-10 in any single conference.
+    // 300 was still not enough for defensive stats: totalTackles left just ONE
+    // Big 12 player and three from the SEC, so that tab collapsed to a stub.
+    // At 1000 (the API's ceiling — asking for more returns the same) every
+    // power conference has 23-43 tacklers to draw a top-10 from.
     const target = `https://sports.core.api.espn.com/v2/sports/football/leagues/college-football`
                  + `/seasons/${year}/types/${type}/leaders?lang=en&region=us&limit=${RAW_LIMIT}`;
     try {

@@ -73,7 +73,7 @@ header{
   max-width:1320px; margin:0 auto; padding:0 16px;
 }
 .brand{display:flex; align-items:center; gap:11px; flex-shrink:0}
-.brand svg{width:34px; height:28px; flex-shrink:0}
+.brand svg{width:36px; height:29px; flex-shrink:0}
 .brand .bt{
   font-family:'Barlow Condensed',Impact,sans-serif; font-weight:700;
   font-size:26px; letter-spacing:.5px; line-height:.94; text-transform:uppercase;
@@ -189,7 +189,7 @@ main{padding:20px 0 56px}
 }
 .card-h h2{
   margin:0; font-size:11px; font-weight:800; letter-spacing:1.4px;
-  text-transform:uppercase; color:var(--text2);
+  text-transform:uppercase; color:var(--text2); white-space:nowrap;
 }
 .card-h .hint{margin-left:auto; font-size:11px; color:var(--mute)}
 .card-b{padding:6px 15px 13px}
@@ -367,7 +367,19 @@ main{padding:20px 0 56px}
 .ld-v{
   font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:16px;
   color:var(--text); font-variant-numeric:tabular-nums;
+  /* Fixed width: without it the card's intrinsic width tracked the widest value
+     ("1620" vs "9.5"), which in a narrow rail nudged the header into wrapping
+     and cost another 15px of jump on certain tabs. */
+  min-width:46px; text-align:right; flex-shrink:0;
 }
+/* Reserve the full ten-row height. Some stat/conference pairs genuinely return
+   fewer rows — early-season tackles in a single conference can be three deep —
+   and letting the list collapse to those three shrank the card by ~250px on a
+   tab switch. Reserving the space costs a little whitespace in the rare thin
+   case and removes the jump entirely. */
+#leaders{min-height:369px}
+.ld-row.ld-pad{visibility:hidden}
+
 /* Skeleton rows are deliberately the same height as .ld-row so the card doesn't
    resize when data lands — that jump was the "bounce" on every tab switch. */
 .ld-sk .sk-row{height:20.5px; margin:6px 0; border-radius:5px}
@@ -415,7 +427,7 @@ footer a:hover{color:var(--gold-ink)}
      than allowed to push the page into a horizontal scroll. */
   .head-in{gap:8px; padding:0 12px}
   .brand{min-width:0}
-  .brand svg{width:25px; height:21px}
+  .brand svg{width:29px; height:23px}
   .brand .bt{font-size:18px}
   /* The tagline is decorative; the header row is the one thing that can't
      wrap, so it goes first rather than forcing a horizontal scroll. */
@@ -434,15 +446,16 @@ footer a:hover{color:var(--gold-ink)}
 <header>
   <div class="head-in">
     <a class="brand" href="index.html" aria-label="CFB Scoreboard home">
-      <svg viewBox="0 0 36 30" aria-hidden="true">
-        <!-- Generic side-profile football helmet: shell, crown stripe, ear hole,
-             three-bar facemask. Drawn from scratch, no school marks. -->
-        <path d="M5 17.2C5 8.9 10.9 3.2 18.1 3.2c7 0 12 5 12 11.9v3.2c0 1-.7 1.8-1.7 1.9l-1.9.3-.8 2.5c-.3 1-1.2 1.7-2.3 1.7h-8.9C9 24.7 5 21.5 5 17.2z" fill="#1d1a15"/>
-        <path d="M13 4.9c2.2 4.2 2.4 10 1 14.6" stroke="#e8ab24" stroke-width="2.5" fill="none"/>
-        <circle cx="12.8" cy="15.2" r="1.8" fill="#f4f0e7"/>
-        <path d="M27.6 16.1c4.3.6 6.6 3.3 6 6.3-.5 2.6-2.9 4.3-6 4.3h-3.7" fill="none" stroke="#1d1a15" stroke-width="2.1" stroke-linecap="round"/>
-        <path d="M33.4 20.4l-7.6.2" fill="none" stroke="#1d1a15" stroke-width="1.7" stroke-linecap="round"/>
-        <path d="M32.7 24.3l-7.8.2" fill="none" stroke="#1d1a15" stroke-width="1.5" stroke-linecap="round"/>
+      <svg viewBox="0 0 42 34" aria-hidden="true">
+        <!-- Generic side-profile football helmet, drawn from scratch: shell and
+             jaw as one silhouette with the facemask integrated (thin detached
+             bars vanish at 36px), cream cut-outs for the mask gaps and ear hole,
+             gold crown stripe. No school marks. -->
+        <path d="M3.6 17.8C3.6 9.6 10.5 3.6 19.2 3.6c8.1 0 13.7 5.6 13.7 13.1 0 1.6-.2 3-.6 4.2l3 1.1c2.3.8 3.5 2.9 3 5.1-.5 2.3-2.6 3.8-5.2 3.8H16.4C9 30.9 3.6 26 3.6 17.8z" fill="#1d1a15"/>
+        <path d="M31.6 24.4l-9.8.5" stroke="#f4f0e7" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M34.6 27.9l-12.4.4" stroke="#f4f0e7" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M7.4 12.6C11 6.9 18.4 5 25.6 7.4" stroke="#e8ab24" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+        <circle cx="15.2" cy="19.4" r="2.4" fill="#f4f0e7"/>
       </svg>
       <div>
         <span class="bt">CFB <em>Scoreboard</em></span>
@@ -582,7 +595,7 @@ const TTL = {
    in localStorage. Every stored key carries the version, and keys from older
    versions are dropped on boot — so a deploy can't leave visitors staring at
    data produced by code that no longer exists. */
-const CACHE_VERSION = "v3";
+const CACHE_VERSION = "v4";
 
 /* Conferences. `p4:true` drives the default "Power 4" view. Notre Dame is an
    independent but every college football fan expects it in that view, so it is
@@ -1163,14 +1176,26 @@ async function enrichOdds(){
    are ready to paint, cached at the edge for 30 minutes.
    ============================================================================ */
 
-const LEADER_CONFS = [
-  { id:"p4",  label:"Power 4" },
-  { id:"all", label:"All FBS" },
-  { id:"1",   label:"ACC" },
-  { id:"5",   label:"Big Ten" },
-  { id:"4",   label:"Big 12" },
-  { id:"8",   label:"SEC" },
-];
+/* Which conferences to offer depends on the season being viewed. The Pac-12
+   was a power conference through 2023 and was raided in 2024, so browsing back
+   to 2021 should offer it — and the aggregate chip should read "Power 5", not
+   "Power 4". The server applies the same era rule when resolving the aggregate,
+   and resolves team membership from that season's standings, so picking 2023
+   filters by the Pac-12 that actually existed then.
+
+   (The rebuilt Pac-12 still exists in 2026 but isn't a power league; those
+   teams are reachable through All FBS.) */
+const LAST_POWER5_SEASON = 2023;
+function leaderConfOptions(season){
+  const power = season <= LAST_POWER5_SEASON
+    ? [["1","ACC"],["5","Big Ten"],["4","Big 12"],["9","Pac-12"],["8","SEC"]]
+    : [["1","ACC"],["5","Big Ten"],["4","Big 12"],["8","SEC"]];
+  return [
+    { id:"p4",  label: season <= LAST_POWER5_SEASON ? "Power 5" : "Power 4" },
+    { id:"all", label:"All FBS" },
+    ...power.map(([id,label]) => ({ id, label })),
+  ];
+}
 let leaderConf = localStorage.getItem("sb_leaderconf") || "p4";
 
 /* Seasons offered in the leaders picker. ESPN has full leader data back well
@@ -1197,7 +1222,7 @@ async function fetchLeaders(stat, conf, season){
   const hit = cachedLeaders(stat, conf, season);
   if (hit) return hit;
   const res = await fetch(`/api/cfb-leaders?stat=${encodeURIComponent(stat)}`
-    + `&conf=${encodeURIComponent(conf)}&season=${encodeURIComponent(season)}&limit=10`);
+    + `&conf=${encodeURIComponent(conf)}&season=${encodeURIComponent(season)}&limit=${LEADER_ROWS}`);
   if (!res.ok) throw new Error("HTTP " + res.status);
   const data = await res.json();
   lsSet(leaderKey(stat, conf, season), { at: Date.now(), data });
@@ -1224,8 +1249,9 @@ function prefetchLeaders(){
 /** A skeleton the same height as ten loaded rows. The card used to jump from a
  *  three-line placeholder to a full list, which is the "bounce" you see on
  *  every tab switch. */
+const LEADER_ROWS = 10;
 const leaderSkeleton = () =>
-  `<div class="ld-sk">${'<div class="sk sk-row"></div>'.repeat(10)}</div>`;
+  `<div class="ld-sk">${'<div class="sk sk-row"></div>'.repeat(LEADER_ROWS)}</div>`;
 
 function paintLeaders(data, cfg){
   const host = $("leaders");
@@ -1238,16 +1264,23 @@ function paintLeaders(data, cfg){
     (got && got !== leaderSeason) ? `showing ${got}${data.seasonType === 3 ? " bowls" : ""}` : "";
 
   if (!rows.length){
-    const scope = (LEADER_CONFS.find(c => c.id === leaderConf) || {}).label || "FBS";
+    const scope = (leaderConfOptions(leaderSeason).find(c => c.id === leaderConf) || {}).label || "FBS";
     host.innerHTML = `<div class="empty">No ${esc(cfg.head.toLowerCase())} leaders for ${esc(scope)} in ${esc(leaderSeason)}.</div>`;
     return;
   }
+  // Pad to a fixed row count. Some stat/conference pairs genuinely return fewer
+  // than ten — early-season tackles inside one conference can be three deep —
+  // and letting the list shrink to that moved everything below it. Reserving
+  // the rows keeps the card a constant height no matter which tab is open, and
+  // unlike a pixel min-height it stays exact if the row font ever changes.
+  const filler = Math.max(0, LEADER_ROWS - rows.length);
   host.innerHTML = rows.map(r => `<div class="ld-row">
     <span class="ld-n">${r.rank}</span>
     ${r.teamId ? `<img src="${esc(logoFor(r.teamId))}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : ""}
     <span class="ld-nm">${esc(r.name)} <span>${esc(r.team || "")}</span></span>
     <span class="ld-v">${esc(r.display != null ? r.display : r.value)}</span>
-  </div>`).join("");
+  </div>`).join("")
+  + `<div class="ld-row ld-pad" aria-hidden="true"><span class="ld-n">0</span></div>`.repeat(filler);
 }
 
 async function renderLeaders(){
@@ -1277,7 +1310,7 @@ function paintSeasonSelect(){
     `<option value="${y}"${y === leaderSeason ? " selected" : ""}>${y}${y === LEADER_SEASONS[0] ? "" : ""}</option>`).join("");
 }
 function paintLeaderConfs(){
-  $("leaderConfs").innerHTML = LEADER_CONFS.map(c =>
+  $("leaderConfs").innerHTML = leaderConfOptions(leaderSeason).map(c =>
     `<button class="tab${c.id === leaderConf ? " on" : ""}" data-lconf="${c.id}">${esc(c.label)}</button>`).join("");
 }
 
@@ -1484,6 +1517,10 @@ $("leaderConfs").addEventListener("click", e => {
 $("seasonSelect").addEventListener("change", e => {
   leaderSeason = Number(e.target.value);
   localStorage.setItem("sb_leaderseason", String(leaderSeason));
+  // The chip you had selected may not exist in the new era — fall back to the
+  // aggregate rather than showing an empty card for a conference that's gone.
+  if (!leaderConfOptions(leaderSeason).some(c => c.id === leaderConf)) leaderConf = "p4";
+  paintLeaderConfs();
   renderLeaders();
 });
 $("statTabs").addEventListener("click", e => {

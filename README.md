@@ -92,8 +92,12 @@ separately at the edge for 30 minutes. Notre Dame is counted as Power 4.
 Conference membership is resolved **per season**, which matters more than it
 sounds: USC was Pac-12 in 2023 and Big Ten in 2026, so filtering an old
 leaderboard through today's team map would quietly file players under the wrong
-league. `RAW_LIMIT = 300` is also load-bearing — the feed covers all of Division
-I ordered by raw total, and at the API's default of 25 rows only four were FBS.
+league. "Power" is era-aware too — through 2023 the aggregate chip reads
+**Power 5** and includes the Pac-12; from 2024 it's Power 4. Both the chip list
+and the server's aggregate filter follow `LAST_POWER5_SEASON`. `RAW_LIMIT = 1000` is also load-bearing — the feed covers all of Division I
+ordered by raw total, so FCS players dominate early in a season. At the API's
+default of 25 rows only four were FBS; at 300 the tackles list still left one
+Big 12 player. 1000 is the API's ceiling and leaves 23-43 per power conference.
 
 The browser prefetches every stat for the visible season and conference at idle,
 so switching tabs is a synchronous cache read: no request, no skeleton, no

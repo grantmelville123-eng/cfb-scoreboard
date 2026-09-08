@@ -39,7 +39,7 @@ header{position:sticky; top:0; z-index:40; background:rgba(244,240,231,.85);
   border-bottom:1px solid var(--line)}
 .head-in{height:var(--head-h); display:flex; align-items:center; gap:16px; max-width:1320px; margin:0 auto; padding:0 16px}
 .brand{display:flex; align-items:center; gap:11px; min-width:0}
-.brand svg{width:34px; height:28px; flex-shrink:0}
+.brand svg{width:36px; height:29px; flex-shrink:0}
 .brand .bt{font-family:'Barlow Condensed',Impact,sans-serif; font-weight:700; font-size:26px;
   letter-spacing:.5px; line-height:.94; text-transform:uppercase}
 .brand .bt em{font-style:normal; color:var(--gold-ink)}
@@ -109,7 +109,7 @@ footer code{background:var(--panel3); padding:1px 5px; border-radius:4px; font-s
 @media (max-width:600px){
   .wrap{padding:0 12px}
   .head-in{gap:8px; padding:0 12px}
-  .brand svg{width:25px; height:21px}
+  .brand svg{width:29px; height:23px}
   .brand .bt{font-size:18px}
   .brand .bs{display:none}
   nav{gap:0}
@@ -124,15 +124,16 @@ footer code{background:var(--panel3); padding:1px 5px; border-radius:4px; font-s
 <header>
   <div class="head-in">
     <a class="brand" href="index.html" aria-label="CFB Scoreboard home">
-      <svg viewBox="0 0 36 30" aria-hidden="true">
-        <!-- Generic side-profile football helmet: shell, crown stripe, ear hole,
-             three-bar facemask. Drawn from scratch, no school marks. -->
-        <path d="M5 17.2C5 8.9 10.9 3.2 18.1 3.2c7 0 12 5 12 11.9v3.2c0 1-.7 1.8-1.7 1.9l-1.9.3-.8 2.5c-.3 1-1.2 1.7-2.3 1.7h-8.9C9 24.7 5 21.5 5 17.2z" fill="#1d1a15"/>
-        <path d="M13 4.9c2.2 4.2 2.4 10 1 14.6" stroke="#e8ab24" stroke-width="2.5" fill="none"/>
-        <circle cx="12.8" cy="15.2" r="1.8" fill="#f4f0e7"/>
-        <path d="M27.6 16.1c4.3.6 6.6 3.3 6 6.3-.5 2.6-2.9 4.3-6 4.3h-3.7" fill="none" stroke="#1d1a15" stroke-width="2.1" stroke-linecap="round"/>
-        <path d="M33.4 20.4l-7.6.2" fill="none" stroke="#1d1a15" stroke-width="1.7" stroke-linecap="round"/>
-        <path d="M32.7 24.3l-7.8.2" fill="none" stroke="#1d1a15" stroke-width="1.5" stroke-linecap="round"/>
+      <svg viewBox="0 0 42 34" aria-hidden="true">
+        <!-- Generic side-profile football helmet, drawn from scratch: shell and
+             jaw as one silhouette with the facemask integrated (thin detached
+             bars vanish at 36px), cream cut-outs for the mask gaps and ear hole,
+             gold crown stripe. No school marks. -->
+        <path d="M3.6 17.8C3.6 9.6 10.5 3.6 19.2 3.6c8.1 0 13.7 5.6 13.7 13.1 0 1.6-.2 3-.6 4.2l3 1.1c2.3.8 3.5 2.9 3 5.1-.5 2.3-2.6 3.8-5.2 3.8H16.4C9 30.9 3.6 26 3.6 17.8z" fill="#1d1a15"/>
+        <path d="M31.6 24.4l-9.8.5" stroke="#f4f0e7" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M34.6 27.9l-12.4.4" stroke="#f4f0e7" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M7.4 12.6C11 6.9 18.4 5 25.6 7.4" stroke="#e8ab24" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+        <circle cx="15.2" cy="19.4" r="2.4" fill="#f4f0e7"/>
       </svg>
       <div><span class="bt">CFB <em>Scoreboard</em></span><span class="bs">College Football · FBS</span></div>
     </a>
