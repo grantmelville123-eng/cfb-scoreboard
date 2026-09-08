@@ -38,7 +38,9 @@ const ODDS_FORMAT   = "american";
 const CACHE_SECONDS = 300;
 
 export default async function handler(request, response) {
-  const apiKey = process.env.THE_ODDS_API_KEY;
+  // Trim defensively: a key pasted out of an email often arrives with a
+  // trailing newline or space, which The Odds API rejects as INVALID_KEY.
+  const apiKey = (process.env.THE_ODDS_API_KEY || "").trim();
 
   if (!apiKey) {
     response.setHeader("Cache-Control", "public, s-maxage=60");

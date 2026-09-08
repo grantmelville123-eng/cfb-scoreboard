@@ -40,7 +40,7 @@ async function jsonReport(response, hasOddsKey) {
     if (!hasOddsKey) {
       return { ok: false, status: null, note: "THE_ODDS_API_KEY is NOT set on this deployment." };
     }
-    const u = `https://api.the-odds-api.com/v4/sports/?apiKey=${encodeURIComponent(process.env.THE_ODDS_API_KEY)}`;
+    const u = `https://api.the-odds-api.com/v4/sports/?apiKey=${encodeURIComponent(process.env.THE_ODDS_API_KEY.trim())}`;
     try {
       const r = await timedFetch(u, { Accept: "application/json" });
       return {
@@ -78,6 +78,11 @@ async function jsonReport(response, hasOddsKey) {
     region: process.env.VERCEL_REGION || null,
     seasonAssumed: season,
     envVars: { THE_ODDS_API_KEY_set: hasOddsKey },
+    // Describes the SHAPE of the stored key without revealing it. A 401
+    // INVALID_KEY means The Odds API doesn't recognise the string it received,
+    // and by far the most common cause is a stray space or newline picked up
+    // when pasting out of an email.
+    keyShape: keyShape(process.env.THE_ODDS_API_KEY),
     upstreams: { odds, scoreboard, leaders, news, rankings, standings },
     hint: !hasOddsKey
       ? "Odds key missing. Add THE_ODDS_API_KEY in Vercel → Settings → Environment Variables, then redeploy. Everything except the live betting line works without it."
@@ -87,6 +92,22 @@ async function jsonReport(response, hasOddsKey) {
   response.setHeader("Content-Type", "application/json; charset=utf-8");
   response.setHeader("Cache-Control", "no-store");
   return response.status(200).json(report);
+}
+
+/** Never returns key material — only length and character-class facts. */
+function keyShape(raw) {
+  if (!raw) return null;
+  const trimmed = raw.trim();
+  return {
+    length: raw.length,
+    trimmedLength: trimmed.length,
+    hasSurroundingWhitespace: raw !== trimmed,
+    hasInnerWhitespace: /\s/.test(trimmed),
+    hasQuotes: /^["'].*["']$/.test(trimmed),
+    // The Odds API issues 32-character hex keys.
+    looksLikeOddsApiKey: /^[0-9a-f]{32}$/i.test(trimmed),
+    expectedLength: 32,
+  };
 }
 
 function seasonYear() {
@@ -128,7 +149,8 @@ function htmlShell(hasOddsKey) {
   <div class="meta">Loaded at <span id="loadedAt"></span> · <a href="?json">Raw JSON</a> · <a href="/">Back to site</a></div>
 
   <h2>Environment</h2>
-  <table><tr><td><strong>THE_ODDS_API_KEY</strong></td><td>${envBadge}</td><td colspan="2" class="muted">${envNote}</td></tr></table>
+  <table><tr><td><strong>THE_ODDS_API_KEY</strong></td><td>${envBadge}</td><td colspan="2" class="muted">${envNote}</td></tr>
+  <tr><td><strong>Key shape</strong></td><td colspan="3" class="muted mono" id="keyShape">checking…</td></tr></table>
 
   <h2>Upstreams</h2>
   <table><thead><tr><th>Source</th><th>Status</th><th>HTTP</th><th>Detail</th></tr></thead>
@@ -155,6 +177,18 @@ function htmlShell(hasOddsKey) {
   fetch("/api/diag?json",{cache:"no-store"}).then(function(r){return r.json();}).then(function(rep){
     document.getElementById("raw").textContent=JSON.stringify(rep,null,2);
     document.getElementById("hint").textContent=rep.hint||"";
+    var ks=rep.keyShape, el=document.getElementById("keyShape");
+    if(!ks){ el.textContent="no key stored"; }
+    else {
+      var probs=[];
+      if(ks.hasSurroundingWhitespace) probs.push("has leading/trailing whitespace");
+      if(ks.hasInnerWhitespace)       probs.push("has whitespace inside");
+      if(ks.hasQuotes)                probs.push("wrapped in quotes");
+      if(ks.trimmedLength!==ks.expectedLength) probs.push("length "+ks.trimmedLength+", expected "+ks.expectedLength);
+      if(!ks.looksLikeOddsApiKey && !probs.length) probs.push("not 32 hex characters");
+      el.textContent = ks.trimmedLength+" chars"+(probs.length?" - "+probs.join("; "):" - shape looks correct");
+      el.style.color = probs.length ? "#a8271b" : "#12764a";
+    }
     var u=rep.upstreams||{};
     document.getElementById("upstreams").innerHTML=
       row("The Odds API",u.odds)+row("ESPN site (scoreboard)",u.scoreboard)+row("ESPN core (leaders)",u.leaders)

@@ -671,8 +671,13 @@ function dayLabel(iso){
   if (same(new Date(t.getTime() - 86400000))) return "Yesterday";
   return d.toLocaleDateString(undefined, { weekday:"long", month:"long", day:"numeric" });
 }
-/** Case/punctuation-insensitive team-name key, for matching across providers. */
-const normName = s => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+/** Case/punctuation-insensitive team-name key, for matching across providers.
+ *  Diacritics are folded rather than stripped: ESPN writes "San José State",
+ *  The Odds API writes "San Jose State", and dropping the accent outright gave
+ *  "sanjosstate" vs "sanjosestate" — a silent miss. */
+const normName = s => String(s || "")
+  .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+  .toLowerCase().replace(/[^a-z0-9]/g, "");
 
 ["pointerdown","keydown","scroll"].forEach(ev =>
   window.addEventListener(ev, () => { lastTouch = Date.now(); }, { passive:true }));
@@ -1019,10 +1024,21 @@ async function loadOdds(){
   }catch(err){ console.warn("[odds]", err); return []; }
 }
 
-/** Worth spending a credit? Only if something is live or kicks off soon. */
+/** Worth spending a credit?
+ *
+ *  This used to require a game live or kicking off within six hours, which
+ *  quietly defeated the whole feature: browsing to next week's slate — exactly
+ *  when you most want to see a line — skipped the fetch entirely, so every card
+ *  fell back to ESPN's stale pregame number.
+ *
+ *  The Odds API only lists games that haven't finished, so an all-final week
+ *  has nothing to match and is genuinely not worth a call. Anything else is.
+ *  The cost of relaxing this is bounded: the Function is edge-cached for five
+ *  minutes, so the spend tracks time-on-site rather than page views, and this
+ *  only runs on a real scoreboard load (week change, manual refresh, or the
+ *  auto-refresh that itself only ticks while a game is live). */
 function oddsWorthFetching(){
-  const soon = Date.now() + 6 * 60 * 60 * 1000;
-  return rawEvents.some(g => g.isLive || (g.state === "pre" && Date.parse(g.date) < soon));
+  return rawEvents.some(g => !g.isFinal);
 }
 
 async function enrichOdds(){
