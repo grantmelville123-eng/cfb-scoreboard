@@ -551,15 +551,30 @@ const POLLS  = SITE + "/rankings";
 const FBS_GROUP = 80;               // ESPN group id for FBS (I-A)
 const LIVE_REFRESH_MS  = 45 * 1000; // while any game is in progress
 const IDLE_MS          = 15 * 60 * 1000;
+/* Client-side cache lifetimes. Keep these at or below the matching edge cache:
+   Cloudflare/Vercel already absorb the upstream cost, so a long localStorage TTL
+   buys nothing and actively hurts — it pins a visitor to whatever the code
+   returned when they last loaded the page.
+
+   That is not hypothetical. The leaders card sat on a 6-hour TTL, so after the
+   fix that made it return ten rows instead of two, anyone who had loaded the
+   page in the previous six hours kept seeing two. The server was right and the
+   browser was stale, which is the worst kind of bug to chase. */
 const TTL = {
   poll:    30 * 60 * 1000,
   news:    15 * 60 * 1000,
   reddit:  10 * 60 * 1000,
   teams:    6 * 60 * 60 * 1000,
-  leaders:  6 * 60 * 60 * 1000,
+  leaders:  30 * 60 * 1000,   // matches the s-maxage on /api/cfb-leaders
   names:    7 * 24 * 60 * 60 * 1000,
   odds:     5 * 60 * 1000,
 };
+
+/* Bump this whenever a change alters the SHAPE or CONTENT of anything cached
+   in localStorage. Every stored key carries the version, and keys from older
+   versions are dropped on boot — so a deploy can't leave visitors staring at
+   data produced by code that no longer exists. */
+const CACHE_VERSION = "v2";
 
 /* Conferences. `p4:true` drives the default "Power 4" view. Notre Dame is an
    independent but every college football fan expects it in that view, so it is
@@ -620,9 +635,24 @@ const $  = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c =>
   ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 
-function lsGet(k, fb){ try{ const r = localStorage.getItem(k); return r ? JSON.parse(r) : fb; }catch(_){ return fb; } }
-function lsSet(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(_){} }
+/* All cached reads/writes go through these, so the version prefix is applied
+   in exactly one place and can never be forgotten at a call site. */
+const vkey  = k => `${k}__${CACHE_VERSION}`;
+function lsGet(k, fb){ try{ const r = localStorage.getItem(vkey(k)); return r ? JSON.parse(r) : fb; }catch(_){ return fb; } }
+function lsSet(k, v){ try{ localStorage.setItem(vkey(k), JSON.stringify(v)); }catch(_){} }
 function fresh(o, ttl){ return o && typeof o.at === "number" && (Date.now() - o.at) < ttl; }
+
+/* Drop anything this build didn't write: entries from an older CACHE_VERSION,
+   and the unversioned keys used before versioning existed. */
+(function purgeStaleCache(){
+  try{
+    for (const k of Object.keys(localStorage)){
+      if (!k.startsWith("sb_")) continue;
+      if (k === "sb_scope" || k === "sb_stat" || k === "sb_leaderconf") continue;  // user prefs, not data
+      if (!k.endsWith(`__${CACHE_VERSION}`)) localStorage.removeItem(k);
+    }
+  }catch(_){}
+})();
 
 /** Season label: CFB seasons are named for the year they start in. */
 function seasonYear(){ const d = new Date(); return d.getMonth() < 6 ? d.getFullYear() - 1 : d.getFullYear(); }
@@ -756,9 +786,8 @@ async function loadGames({ silent = false } = {}){
     }
 
     rawEvents = (data.events || []).map(normalizeEvent).filter(Boolean);
-    renderGames();
+    renderGames();         // renderGames() re-enriches odds itself
     stamp();
-    enrichOdds();          // async, non-blocking
   }catch(err){
     console.warn("[games]", err);
     if (!rawEvents.length){
@@ -877,6 +906,14 @@ function renderGames(){
         <div class="games">${gs.map(gameCard).join("")}</div>
       </section>`;
     }).join("");
+
+  // Re-enrich after EVERY render, not just after a fetch. Changing the scope
+  // or a conference chip rebuilds this innerHTML from scratch, which throws
+  // away the sportsbook pills enrichOdds() injected — so switching from Power 4
+  // to All FBS silently reverted every card to ESPN's opening line. This costs
+  // nothing: the odds are already in memory (and localStorage) for five
+  // minutes, so no filter click can trigger a fetch.
+  enrichOdds();
 }
 
 function teamRow(t, g, other){
