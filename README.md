@@ -85,9 +85,19 @@ credits/month — see the notes at the top of `api/cfb-odds.js` if you run short
 athlete names as `$ref` URLs, so a top-10 needs ten extra round trips plus the
 FBS team set to filter out FCS players. `/api/cfb-leaders` does all of that
 server-side and returns rows ready to paint — one browser request instead of
-eleven. It takes `?stat=` and `?conf=` (`p4`, `all`, or a conference id: 1 ACC,
-4 Big 12, 5 Big Ten, 8 SEC), and each combination is cached separately at the
-edge for 30 minutes. Notre Dame is counted as Power 4.
+eleven. It takes `?stat=`, `?conf=` (`p4`, `all`, or a conference id: 1 ACC, 4 Big 12,
+5 Big Ten, 8 SEC) and `?season=` (back to 2015), and each combination is cached
+separately at the edge for 30 minutes. Notre Dame is counted as Power 4.
+
+Conference membership is resolved **per season**, which matters more than it
+sounds: USC was Pac-12 in 2023 and Big Ten in 2026, so filtering an old
+leaderboard through today's team map would quietly file players under the wrong
+league. `RAW_LIMIT = 300` is also load-bearing — the feed covers all of Division
+I ordered by raw total, and at the API's default of 25 rows only four were FBS.
+
+The browser prefetches every stat for the visible season and conference at idle,
+so switching tabs is a synchronous cache read: no request, no skeleton, no
+layout shift.
 
 **Headlines.** `/api/cfb-news` fetches five RSS feeds in parallel, each with
 its own timeout and try/catch, then merges, de-duplicates by headline and sorts
@@ -117,6 +127,11 @@ and the user has interacted in the last 15 minutes.
 - **News outlets** — the `FEEDS` array in `api/cfb-news.js`.
 - **Leader conference filter** — `LEADER_CONFS` in `index.html` and
   `P4_CONF` / `P4_EXTRA_TEAMS` in `api/cfb-leaders.js`.
+- **Seasons offered** — `LEADER_SEASONS` in `index.html` (six years back);
+  `EARLIEST_SEASON` in `api/cfb-leaders.js` clamps what the API will serve.
+- **Cache busting** — bump `CACHE_VERSION` in `index.html` whenever a change
+  alters the shape of anything stored in localStorage; older keys are purged on
+  load so a deploy can't strand visitors on stale data.
 
 ## Local preview
 

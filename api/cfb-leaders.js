@@ -1,7 +1,7 @@
 // Vercel Function: national statistical leaders, fully resolved server-side.
 //
 // File path -> URL: this file -> /api/cfb-leaders
-// Query: ?stat=passingYards&conf=p4&limit=10
+// Query: ?stat=passingYards&conf=p4&season=2024&limit=10
 //
 // WHY THIS EXISTS
 // ---------------
@@ -45,7 +45,15 @@ const P4_CONF = new Set(["1", "4", "5", "8"]);   // ACC, Big 12, Big Ten, SEC
 const P4_EXTRA_TEAMS = new Set(["87"]);           // Notre Dame
 
 const TTL = { teams: 6 * 60 * 60 * 1000, leaders: 30 * 60 * 1000, names: 24 * 60 * 60 * 1000 };
-const cache = { teams: null, leaders: null, names: new Map() };
+
+// Everything except athlete names is cached PER SEASON. That isn't just an
+// optimisation — conference realignment means membership is a property of the
+// season. USC and UCLA were Pac-12 in 2023 and Big Ten in 2026, so filtering a
+// 2023 leaderboard through a 2026 team map would quietly put them in the wrong
+// conference. Athlete names are season-independent and shared.
+const cache = { teams: new Map(), leaders: new Map(), names: new Map() };
+
+const EARLIEST_SEASON = 2015;
 
 export default async function handler(request, response) {
   const url = new URL(request.url, `https://${request.headers.host}`);
@@ -53,12 +61,18 @@ export default async function handler(request, response) {
   const conf  = (url.searchParams.get("conf") || "p4").toLowerCase();
   const limit = Math.min(25, Math.max(1, parseInt(url.searchParams.get("limit") || "10", 10) || 10));
 
+  const current = seasonYear();
+  const asked = parseInt(url.searchParams.get("season") || "", 10);
+  const season = Number.isFinite(asked)
+    ? Math.min(current, Math.max(EARLIEST_SEASON, asked))
+    : current;
+
   if (!ALLOWED_STATS.has(stat)) {
     return response.status(400).json({ error: "bad_stat", allowed: [...ALLOWED_STATS] });
   }
 
   try {
-    const [teams, leaders] = await Promise.all([getTeams(), getLeaders()]);
+    const [teams, leaders] = await Promise.all([getTeams(season), getLeaders(season, current)]);
     const raw = (leaders.cats && leaders.cats[stat]) || [];
     const knowFbs = teams.size > 0;
 
@@ -116,10 +130,10 @@ function passesConf(teamId, team, conf) {
 
 /* ─────────── FBS team directory (id -> {abbr, name, conf}) ─────────── */
 
-async function getTeams() {
-  if (cache.teams && Date.now() - cache.teams.at < TTL.teams) return cache.teams.map;
+async function getTeams(season) {
+  const hit = cache.teams.get(season);
+  if (hit && Date.now() - hit.at < TTL.teams) return hit.map;
 
-  const season = seasonYear();
   const target = "https://site.web.api.espn.com/apis/v2/sports/football/college-football/standings"
                + `?region=us&lang=en&contentorigin=espn&season=${season}&type=0&level=2`;
   const map = new Map();
@@ -140,19 +154,23 @@ async function getTeams() {
     }
   } catch (_) { /* fall through with an empty map — we then skip FBS filtering */ }
 
-  cache.teams = { at: Date.now(), map };
+  cache.teams.set(season, { at: Date.now(), map });
   return map;
 }
 
 /* ─────────── Raw leader categories ─────────── */
 
-async function getLeaders() {
-  if (cache.leaders && Date.now() - cache.leaders.at < TTL.leaders) return cache.leaders;
+async function getLeaders(season, current) {
+  const hit = cache.leaders.get(season);
+  if (hit && Date.now() - hit.at < TTL.leaders) return hit;
 
-  const yr = seasonYear();
-  // Early in a season the current year's regular-season leaders can be empty,
-  // so walk back rather than showing an empty card.
-  const combos = [[yr, 2], [yr - 1, 2], [yr - 1, 3]];
+  // For a PAST season the answer is settled: regular season, that year, done.
+  // Only the current season needs the walk-back, because in week 1 its
+  // regular-season totals can still be empty and an empty card is worse than
+  // last year's numbers clearly labelled.
+  const combos = season === current
+    ? [[season, 2], [season - 1, 2], [season - 1, 3]]
+    : [[season, 2]];
 
   for (const [year, type] of combos) {
     // RAW_LIMIT matters more than it looks. The feed covers all of Division I
@@ -179,13 +197,15 @@ async function getLeaders() {
         if (rows.length) { cats[c.name] = rows; any = true; }
       }
       if (!any) continue;
-      cache.leaders = { at: Date.now(), cats, season: year, type };
-      return cache.leaders;
+      const out = { at: Date.now(), cats, season: year, type };
+      cache.leaders.set(season, out);
+      return out;
     } catch (_) { /* try the next combo */ }
   }
 
-  cache.leaders = { at: Date.now(), cats: {}, season: yr, type: 2 };
-  return cache.leaders;
+  const empty = { at: Date.now(), cats: {}, season, type: 2 };
+  cache.leaders.set(season, empty);
+  return empty;
 }
 
 /* ─────────── Athlete names ─────────── */

@@ -73,7 +73,7 @@ header{
   max-width:1320px; margin:0 auto; padding:0 16px;
 }
 .brand{display:flex; align-items:center; gap:11px; flex-shrink:0}
-.brand svg{width:30px; height:34px; flex-shrink:0}
+.brand svg{width:34px; height:28px; flex-shrink:0}
 .brand .bt{
   font-family:'Barlow Condensed',Impact,sans-serif; font-weight:700;
   font-size:26px; letter-spacing:.5px; line-height:.94; text-transform:uppercase;
@@ -368,6 +368,19 @@ main{padding:20px 0 56px}
   font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:16px;
   color:var(--text); font-variant-numeric:tabular-nums;
 }
+/* Skeleton rows are deliberately the same height as .ld-row so the card doesn't
+   resize when data lands — that jump was the "bounce" on every tab switch. */
+.ld-sk .sk-row{height:20.5px; margin:6px 0; border-radius:5px}
+.ld-sk .sk-row:first-child{margin-top:7px}
+
+.season-select{
+  margin-left:8px; background:var(--panel2); border:1px solid var(--line2); color:var(--text2);
+  border-radius:999px; padding:2px 20px 2px 8px; font-size:11px; font-weight:700;
+  cursor:pointer; appearance:none; font-variant-numeric:tabular-nums;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238b8375' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 7px center;
+}
+.season-select:hover{border-color:var(--gold-ink); color:var(--text)}
 
 /* ============================================================
    States
@@ -402,13 +415,13 @@ footer a:hover{color:var(--gold-ink)}
      than allowed to push the page into a horizontal scroll. */
   .head-in{gap:8px; padding:0 12px}
   .brand{min-width:0}
-  .brand svg{width:24px; height:27px}
+  .brand svg{width:25px; height:21px}
   .brand .bt{font-size:18px}
   /* The tagline is decorative; the header row is the one thing that can't
      wrap, so it goes first rather than forcing a horizontal scroll. */
   .brand .bs{display:none}
   nav{gap:0}
-  nav a{font-size:12px; padding:6px 6px}
+  nav a{font-size:12px; padding:6px 5px}
   .icon-btn{width:30px; height:30px; margin-left:2px}
   .wrap{padding:0 12px}
   .controls-in{padding:10px 12px}
@@ -421,21 +434,15 @@ footer a:hover{color:var(--gold-ink)}
 <header>
   <div class="head-in">
     <a class="brand" href="index.html" aria-label="CFB Scoreboard home">
-      <svg viewBox="0 0 30 34" aria-hidden="true">
-        <defs>
-          <linearGradient id="gp" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#e8ab24"/><stop offset="1" stop-color="#98670c"/>
-          </linearGradient>
-          <linearGradient id="bl" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stop-color="#a8552e"/><stop offset="1" stop-color="#6b3018"/>
-          </linearGradient>
-        </defs>
-        <!-- goalpost -->
-        <path d="M4 3v11M26 3v11M4 14h22M15 14v17" stroke="url(#gp)" stroke-width="2.4" stroke-linecap="round" fill="none"/>
-        <!-- football -->
-        <ellipse cx="15" cy="22" rx="8.6" ry="5.4" fill="url(#bl)" stroke="#2a1208" stroke-width=".9" transform="rotate(-18 15 22)"/>
-        <path d="M10.6 23.4 L19.4 20.6" stroke="#f4e9dd" stroke-width="1.1" stroke-linecap="round"/>
-        <path d="M13.2 21.3v2.1M15 20.8v2.1M16.8 20.3v2.1" stroke="#f4e9dd" stroke-width=".9" stroke-linecap="round"/>
+      <svg viewBox="0 0 36 30" aria-hidden="true">
+        <!-- Generic side-profile football helmet: shell, crown stripe, ear hole,
+             three-bar facemask. Drawn from scratch, no school marks. -->
+        <path d="M5 17.2C5 8.9 10.9 3.2 18.1 3.2c7 0 12 5 12 11.9v3.2c0 1-.7 1.8-1.7 1.9l-1.9.3-.8 2.5c-.3 1-1.2 1.7-2.3 1.7h-8.9C9 24.7 5 21.5 5 17.2z" fill="#1d1a15"/>
+        <path d="M13 4.9c2.2 4.2 2.4 10 1 14.6" stroke="#e8ab24" stroke-width="2.5" fill="none"/>
+        <circle cx="12.8" cy="15.2" r="1.8" fill="#f4f0e7"/>
+        <path d="M27.6 16.1c4.3.6 6.6 3.3 6 6.3-.5 2.6-2.9 4.3-6 4.3h-3.7" fill="none" stroke="#1d1a15" stroke-width="2.1" stroke-linecap="round"/>
+        <path d="M33.4 20.4l-7.6.2" fill="none" stroke="#1d1a15" stroke-width="1.7" stroke-linecap="round"/>
+        <path d="M32.7 24.3l-7.8.2" fill="none" stroke="#1d1a15" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
       <div>
         <span class="bt">CFB <em>Scoreboard</em></span>
@@ -519,6 +526,7 @@ footer a:hover{color:var(--gold-ink)}
           <div class="card-h">
             <h2>National Leaders</h2>
             <span class="hint" id="leadersMeta"></span>
+            <select class="season-select" id="seasonSelect" aria-label="Season"></select>
           </div>
           <div class="tabs" id="statTabs"></div>
           <div class="tabs sub" id="leaderConfs"></div>
@@ -574,7 +582,7 @@ const TTL = {
    in localStorage. Every stored key carries the version, and keys from older
    versions are dropped on boot — so a deploy can't leave visitors staring at
    data produced by code that no longer exists. */
-const CACHE_VERSION = "v2";
+const CACHE_VERSION = "v3";
 
 /* Conferences. `p4:true` drives the default "Power 4" view. Notre Dame is an
    independent but every college football fan expects it in that view, so it is
@@ -1165,41 +1173,97 @@ const LEADER_CONFS = [
 ];
 let leaderConf = localStorage.getItem("sb_leaderconf") || "p4";
 
-async function fetchLeaders(stat, conf){
-  const key = `sb_ld_${stat}_${conf}`;
-  const cached = lsGet(key, null);
-  if (fresh(cached, TTL.leaders)) return cached.data;
-  const res = await fetch(`/api/cfb-leaders?stat=${encodeURIComponent(stat)}&conf=${encodeURIComponent(conf)}&limit=10`);
+/* Seasons offered in the leaders picker. ESPN has full leader data back well
+   past this, but six years is the useful range and keeps the dropdown short.
+   Conference membership is resolved per season server-side, so picking 2023
+   filters by the Pac-12 that existed in 2023, not today's Big Ten. */
+const LEADER_SEASONS = (() => {
+  const cur = seasonYear();
+  return Array.from({ length: 6 }, (_, i) => cur - i).filter(y => y >= 2015);
+})();
+let leaderSeason = Number(localStorage.getItem("sb_leaderseason")) || LEADER_SEASONS[0];
+if (!LEADER_SEASONS.includes(leaderSeason)) leaderSeason = LEADER_SEASONS[0];
+
+const leaderKey = (stat, conf, season) => `sb_ld_${season}_${conf}_${stat}`;
+
+/** Synchronous cache peek — lets renderLeaders paint instantly instead of
+ *  flashing a skeleton for data it already has. */
+function cachedLeaders(stat, conf, season){
+  const c = lsGet(leaderKey(stat, conf, season), null);
+  return fresh(c, TTL.leaders) ? c.data : null;
+}
+
+async function fetchLeaders(stat, conf, season){
+  const hit = cachedLeaders(stat, conf, season);
+  if (hit) return hit;
+  const res = await fetch(`/api/cfb-leaders?stat=${encodeURIComponent(stat)}`
+    + `&conf=${encodeURIComponent(conf)}&season=${encodeURIComponent(season)}&limit=10`);
   if (!res.ok) throw new Error("HTTP " + res.status);
   const data = await res.json();
-  lsSet(key, { at: Date.now(), data });
+  lsSet(leaderKey(stat, conf, season), { at: Date.now(), data });
   return data;
 }
 
-async function renderLeaders(){
-  const host = $("leaders");
-  const cfg  = STATS.find(s => s.key === statKey) || STATS[0];
-  host.innerHTML = `<div class="sk sk-line"></div><div class="sk sk-line"></div><div class="sk sk-line"></div>`;
-  try{
-    const data = await fetchLeaders(cfg.key, leaderConf);
-    $("leadersMeta").textContent = data.season
-      ? `${data.season}${data.seasonType === 3 ? " bowls" : ""}` : "";
+/* Warm every other stat for the current season+conference once the visible one
+   has painted. Six small responses, all edge-cached, fetched at idle — after
+   this, switching tabs is a synchronous cache read with no network and no
+   skeleton. Re-runs whenever the season or conference changes. */
+let prefetchedFor = "";
+function prefetchLeaders(){
+  const tag = `${leaderSeason}|${leaderConf}`;
+  if (prefetchedFor === tag) return;
+  prefetchedFor = tag;
+  const run = () => STATS.reduce((chain, st) => chain.then(() =>
+    cachedLeaders(st.key, leaderConf, leaderSeason)
+      ? null
+      : fetchLeaders(st.key, leaderConf, leaderSeason).catch(() => {})
+  ), Promise.resolve());
+  ("requestIdleCallback" in window) ? requestIdleCallback(run, { timeout: 4000 }) : setTimeout(run, 1200);
+}
 
-    const rows = data.rows || [];
-    if (!rows.length){
-      const scope = (LEADER_CONFS.find(c => c.id === leaderConf) || {}).label || "FBS";
-      host.innerHTML = `<div class="empty">No ${esc(cfg.head.toLowerCase())} leaders for ${esc(scope)} yet this season.</div>`;
-      return;
-    }
-    host.innerHTML = rows.map(r => `<div class="ld-row">
-      <span class="ld-n">${r.rank}</span>
-      ${r.teamId ? `<img src="${esc(logoFor(r.teamId))}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : ""}
-      <span class="ld-nm">${esc(r.name)} <span>${esc(r.team || "")}</span></span>
-      <span class="ld-v">${esc(r.display != null ? r.display : r.value)}</span>
-    </div>`).join("");
+/** A skeleton the same height as ten loaded rows. The card used to jump from a
+ *  three-line placeholder to a full list, which is the "bounce" you see on
+ *  every tab switch. */
+const leaderSkeleton = () =>
+  `<div class="ld-sk">${'<div class="sk sk-row"></div>'.repeat(10)}</div>`;
+
+function paintLeaders(data, cfg){
+  const host = $("leaders");
+  const rows = (data && data.rows) || [];
+
+  // The server walks back a season when the current one has no data yet; say so
+  // rather than silently showing numbers from a year the picker doesn't match.
+  const got = data && data.season;
+  $("leadersMeta").textContent =
+    (got && got !== leaderSeason) ? `showing ${got}${data.seasonType === 3 ? " bowls" : ""}` : "";
+
+  if (!rows.length){
+    const scope = (LEADER_CONFS.find(c => c.id === leaderConf) || {}).label || "FBS";
+    host.innerHTML = `<div class="empty">No ${esc(cfg.head.toLowerCase())} leaders for ${esc(scope)} in ${esc(leaderSeason)}.</div>`;
+    return;
+  }
+  host.innerHTML = rows.map(r => `<div class="ld-row">
+    <span class="ld-n">${r.rank}</span>
+    ${r.teamId ? `<img src="${esc(logoFor(r.teamId))}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : ""}
+    <span class="ld-nm">${esc(r.name)} <span>${esc(r.team || "")}</span></span>
+    <span class="ld-v">${esc(r.display != null ? r.display : r.value)}</span>
+  </div>`).join("");
+}
+
+async function renderLeaders(){
+  const cfg = STATS.find(s => s.key === statKey) || STATS[0];
+
+  // Already have it? Paint synchronously — no skeleton, no reflow, no flicker.
+  const hit = cachedLeaders(cfg.key, leaderConf, leaderSeason);
+  if (hit){ paintLeaders(hit, cfg); prefetchLeaders(); return; }
+
+  $("leaders").innerHTML = leaderSkeleton();
+  try{
+    paintLeaders(await fetchLeaders(cfg.key, leaderConf, leaderSeason), cfg);
+    prefetchLeaders();
   }catch(err){
     console.warn("[leaders]", err);
-    host.innerHTML = `<div class="empty">Leader data unavailable right now.
+    $("leaders").innerHTML = `<div class="empty">Leader data unavailable right now.
       <a href="/api/diag" target="_blank" rel="noopener" style="color:var(--gold-ink)">Run diagnostics</a></div>`;
   }
 }
@@ -1207,6 +1271,10 @@ async function renderLeaders(){
 function paintStatTabs(){
   $("statTabs").innerHTML = STATS.map(s =>
     `<button class="tab${s.key === statKey ? " on" : ""}" data-stat="${s.key}">${esc(s.tab)}</button>`).join("");
+}
+function paintSeasonSelect(){
+  $("seasonSelect").innerHTML = LEADER_SEASONS.map(y =>
+    `<option value="${y}"${y === leaderSeason ? " selected" : ""}>${y}${y === LEADER_SEASONS[0] ? "" : ""}</option>`).join("");
 }
 function paintLeaderConfs(){
   $("leaderConfs").innerHTML = LEADER_CONFS.map(c =>
@@ -1413,6 +1481,11 @@ $("leaderConfs").addEventListener("click", e => {
   paintLeaderConfs();
   renderLeaders();
 });
+$("seasonSelect").addEventListener("change", e => {
+  leaderSeason = Number(e.target.value);
+  localStorage.setItem("sb_leaderseason", String(leaderSeason));
+  renderLeaders();
+});
 $("statTabs").addEventListener("click", e => {
   const b = e.target.closest("button[data-stat]");
   if (!b) return;
@@ -1473,6 +1546,7 @@ function startAutoRefresh(){
 syncControls();
 paintStatTabs();
 paintLeaderConfs();
+paintSeasonSelect();
 loadGames();
 loadTopNews();
 loadPoll();
